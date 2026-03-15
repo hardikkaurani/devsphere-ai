@@ -386,7 +386,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Support & Contact
 
-- 📨 Email: support@devsphere.ai
+- 📨 Email: hardikkaurani2@gmail.com
 - 🐛 Issues: [GitHub Issues](https://github.com/yourusername/devsphere-ai/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/devsphere-ai/discussions)
 
@@ -405,4 +405,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ by the DevSphere Team** | [Visit Website](#) | [View Demo](#)
+**Made with ❤️ by Hardik Kaurani ** | [Visit Website](#) | [View Demo](#)

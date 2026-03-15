@@ -1,0 +1,25 @@
+{
+  "name": "devsphere-ai",
+  "version": "1.0.0",
+  "description": "DevSphere AI - Production-grade AI Platform",
+  "main": "backend/src/index.js",
+  "scripts": {
+    "backend:dev": "cd backend && npm run dev",
+    "frontend:dev": "cd devsphere-frontend && npm run dev",
+    "dev:all": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "build:frontend": "cd devsphere-frontend && npm run build",
+    "setup": "npm install && cd backend && npm install && cd ../devsphere-frontend && npm install"
+  },
+  "keywords": [
+    "ai",
+    "saas",
+    "chat",
+    "agents",
+    "coding"
+  ],
+  "author": "DevSphere Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

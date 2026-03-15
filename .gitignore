@@ -1,0 +1,109 @@
+# Environment and Configuration
+.env
+.env.local
+.env.*.local
+.env.example
+
+# Dependencies
+node_modules/
+npm-debug.log*
+npm-error.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build artifacts
+dist/
+build/
+out/
+.vite/
+.next/
+.nuxt/
+.cache/
+.parcel-cache
+.eslintcache
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs/
+*.log
+lerna-debug.log*
+pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_esm/
+.rts2_cache_umd/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# OS-specific
+.DS_Store
+.AppleDouble
+.LSOverride
+*.thumbs
+
+# IDE specific
+.vscode/settings.json
+.vscode/launch.json
+.netrwhist
+
+# Node
+temp/
+tmp/
+.npm
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+mongo/
+
+# Ollama
+models/
+
+# OS Generated
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+
+# Misc
+.cache
+.parcel-cache
+dist
+.next
+out
+.nuxt
+.cache/
+.vuepress/dist
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.env.test.local
+.cache
+.vuepress/dist
+dist
+
+# Local
+local/
+private/
+secrets/

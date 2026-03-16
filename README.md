@@ -132,7 +132,7 @@ ollama pull gemma:2b
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/devsphere-ai.git
+git clone https://github.com/hardikkaurani/devsphere-ai.git
 cd devsphere-ai
 ```
 
@@ -286,7 +286,7 @@ This creates:
 
 ```
 backend/src/
-├── controllers/      # Handle HTTP requests & responses
+├── controllers/     # Handle HTTP requests & responses
 ├── services/        # Implement business logic
 ├── models/          # Define data schemas
 ├── middleware/      # Authentication, error handling, etc.
@@ -387,8 +387,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📧 Support & Contact
 
 - 📨 Email: hardikkaurani2@gmail.com
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/devsphere-ai/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/devsphere-ai/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/hardikkaurani/devsphere-ai/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/hardikkaurani/devsphere-ai/discussions)
 
 ---
 

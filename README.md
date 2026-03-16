@@ -66,7 +66,7 @@ devsphere-ai/
 │   │   └── index.js             # Entry point
 │   └── package.json
 │
-├── devsphere-frontend/           # React + Vite
+├── devsphere-frontend/          # React + Vite
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── ui/              # Base UI components

@@ -6,6 +6,12 @@
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-v19-blue.svg)](https://react.dev/)
 [![Code style](https://img.shields.io/badge/Code%20Style-Airbnb-ff69b4.svg)](https://github.com/airbnb/javascript)
+[![GitHub stars](https://img.shields.io/github/stars/hardikkaurani/devsphere-ai?style=social)](https://github.com/hardikkaurani/devsphere-ai)
+[![GitHub forks](https://img.shields.io/github/forks/hardikkaurani/devsphere-ai?style=social)](https://github.com/hardikkaurani/devsphere-ai)
+[![GitHub issues](https://img.shields.io/github/issues/hardikkaurani/devsphere-ai)](https://github.com/hardikkaurani/devsphere-ai/issues)
+[![GitHub last commit](https://img.shields.io/github/last-commit/hardikkaurani/devsphere-ai)](https://github.com/hardikkaurani/devsphere-ai)
+[![GitHub repo size](https://img.shields.io/github/repo-size/hardikkaurani/devsphere-ai)](https://github.com/hardikkaurani/devsphere-ai)
+[![Contributors](https://img.shields.io/github/contributors/hardikkaurani/devsphere-ai)](https://github.com/hardikkaurani/devsphere-ai/graphs/contributors)
 
 ---
 

@@ -416,4 +416,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Made with ❤️ by Hardik Kauranii | [Visit Website](#) | [View Demo](#)
+Made with ❤️ by Hardik Kaurani | [Visit Website](#) | [View Demo](#)

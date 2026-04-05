@@ -17,9 +17,9 @@ function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    email: 'fresh@test.com',
-    password: 'test123',
-    name: 'Test User'
+    email: '',
+    password: '',
+    name: ''
   });
 
   const handleChange = (e) => {
@@ -39,37 +39,25 @@ function AuthPage() {
     try {
       let response;
       if (isLogin) {
-        console.log('🔐 Attempting login with:', formData.email);
         response = await login(formData.email, formData.password);
-        console.log('📨 Login response:', response);
       } else {
-        console.log('📝 Attempting registration...');
         response = await register(formData.email, formData.password, formData.name);
-        console.log('📨 Register response:', response);
         if (response.message) {
           // Registration successful, now login
-          console.log('🔐 Auto-logging in after registration...');
           response = await login(formData.email, formData.password);
-          console.log('📨 Auto-login response:', response);
         }
       }
 
-      console.log('✅ Final response check:', { hasToken: !!response.token, response });
-
       if (response.token) {
-        console.log('💾 Saving token to localStorage...');
         localStorage.setItem('token', response.token);
-        console.log('✓ Token saved. Redirecting to dashboard...');
         navigate('/dashboard');
       } else if (response.message) {
-        console.log('❌ No token but has message:', response.message);
         setError(response.message);
       } else {
-        console.log('❌ No token and no message in response');
         setError('Authentication failed. Please try again.');
       }
     } catch (err) {
-      console.error('💥 Auth error:', err);
+      console.error('Auth error:', err);
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

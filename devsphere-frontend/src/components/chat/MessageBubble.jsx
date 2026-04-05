@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Copy, Check } from 'lucide-react';
 import clsx from 'clsx';
 
 /**
  * Animated Message Bubble Component
- * Smooth entrance and exit animations
+ * Smooth entrance and exit animations with copy functionality
  */
 
 const MessageBubble = ({ 
@@ -15,6 +16,17 @@ const MessageBubble = ({
   timestamp = null
 }) => {
   const isUser = role === 'user';
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   const bubbleVariants = {
     hidden: { 
@@ -48,13 +60,13 @@ const MessageBubble = ({
       className={clsx(
         'flex',
         isUser ? 'justify-end' : 'justify-start',
-        'mb-4'
+        'mb-4 group'
       )}
     >
       <div
         className={clsx(
           'max-w-xs lg:max-w-md xl:max-w-lg px-4 py-3 rounded-2xl',
-          'backdrop-blur-sm',
+          'backdrop-blur-sm relative',
           isUser
             ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-br-none shadow-lg shadow-blue-500/20'
             : 'bg-slate-700/40 text-slate-100 rounded-bl-none border border-slate-600/30 shadow-lg shadow-black/20'
@@ -79,14 +91,35 @@ const MessageBubble = ({
             />
           </div>
         ) : (
-          <div className="leading-relaxed break-words">
-            <p className="text-sm sm:text-base">{content}</p>
-            {showTimestamp && timestamp && (
-              <p className="text-xs opacity-60 mt-1">
-                {new Date(timestamp).toLocaleTimeString()}
-              </p>
-            )}
-          </div>
+          <>
+            <div className="leading-relaxed break-words pr-8">
+              <p className="text-sm sm:text-base">{content}</p>
+              {showTimestamp && timestamp && (
+                <p className="text-xs opacity-60 mt-1">
+                  {new Date(timestamp).toLocaleTimeString()}
+                </p>
+              )}
+            </div>
+
+            {/* Copy Button - Hidden by default, shows on hover */}
+            <button
+              onClick={handleCopy}
+              className={clsx(
+                'absolute top-2 right-2 p-1.5 rounded-md',
+                'opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+                'hover:bg-white/10 active:bg-white/20',
+                copied ? 'text-green-400' : 'text-current'
+              )}
+              title={copied ? 'Copied!' : 'Copy message'}
+              aria-label="Copy message"
+            >
+              {copied ? (
+                <Check className="w-4 h-4" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </button>
+          </>
         )}
       </div>
     </motion.div>

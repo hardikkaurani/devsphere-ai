@@ -127,9 +127,21 @@ function Dashboard() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-600/20 border border-blue-500/30 text-xs font-medium text-blue-300"
+              className="flex items-center gap-3"
             >
-              {selectedAgent.toUpperCase()}
+              <div className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-600/20 border border-blue-500/30 text-xs font-medium text-blue-300">
+                {selectedAgent.toUpperCase()}
+              </div>
+              <button
+                onClick={() => {
+                  setMessages([]);
+                  setInput('');
+                }}
+                className="px-3 py-1 rounded-lg bg-slate-700/50 hover:bg-slate-600 text-xs text-slate-300 hover:text-white transition-colors font-medium"
+                title="Clear chat history"
+              >
+                New Chat
+              </button>
             </motion.div>
           </div>
 

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/v1"
+import { API_ENDPOINTS } from '../constants/apiEndpoints';
 
 // ============================================
 // 🔐 AUTHENTICATION
@@ -7,7 +7,7 @@ const API_URL = "http://localhost:5000/api/v1"
 // Register User
 export const register = async (email, password, name) => {
   try {
-    const res = await fetch(`${API_URL}/auth/register`, {
+    const res = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -24,18 +24,15 @@ export const register = async (email, password, name) => {
 // Login User
 export const login = async (email, password) => {
   try {
-    console.log('🔗 Calling API:', `${API_URL}/auth/login`);
-    const res = await fetch(`${API_URL}/auth/login`, {
+    const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ email, password })
     })
-    console.log('📡 Response status:', res.status, res.statusText);
-    const data = await res.json()
-    console.log('📦 Response data:', data);
-    return data
+    const data = await res.json();
+    return data;
   } catch (err) {
     console.error("Login Fetch Error:", err)
     return { success: false, error: err.message }
@@ -51,7 +48,7 @@ export const sendMessage = async ({ agentType, message, sessionId }) => {
   try {
     const token = localStorage.getItem("token")
 
-    const res = await fetch(`${API_URL}/agent/chat`, {
+    const res = await fetch(API_ENDPOINTS.AGENT.CHAT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +74,7 @@ export const getSessions = async () => {
   try {
     const token = localStorage.getItem("token")
 
-    const res = await fetch(`${API_URL}/agent/sessions`, {
+    const res = await fetch(API_ENDPOINTS.AGENT.SESSIONS, {
       headers: {
         Authorization: `Bearer ${token}`
       }

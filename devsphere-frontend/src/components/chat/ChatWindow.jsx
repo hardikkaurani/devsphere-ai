@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from '../animations/TypingIndicator';
+import SkeletonLoader from '../animations/SkeletonLoader';
 import ChatInput from './ChatInput';
 
 /**
@@ -63,6 +64,8 @@ const ChatWindow = ({
             </p>
           </motion.div>
         )}
+
+        {messages.length === 0 && isLoading && <SkeletonLoader />}
 
         <AnimatePresence mode="popLayout">
           {messages.map((msg, idx) => (

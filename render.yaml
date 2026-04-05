@@ -2,11 +2,12 @@ services:
   - type: web
     name: devsphere-api
     env: node
-    plan: free
+    plan: paid
     region: oregon
     buildCommand: npm install
     startCommand: node src/index.js
     rootDir: backend
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production

@@ -1,10 +1,15 @@
 {
-  "buildCommand": "VITE_API_URL=https://devsphere-api.onrender.com/api/v1 npm run build:frontend",
+  "buildCommand": "npm run build:frontend",
   "installCommand": "npm install",
   "outputDirectory": "devsphere-frontend/dist",
   "framework": "vite",
+  "region": "iad",
   "env": {
-    "VITE_API_URL": "@devsphere_api_url",
-    "NODE_ENV": "production"
+    "VITE_API_URL": "@devsphere_api_url"
+  },
+  "envs": {
+    "VITE_API_URL": {
+      "value": "https://devsphere-api.onrender.com/api/v1"
+    }
   }
 }

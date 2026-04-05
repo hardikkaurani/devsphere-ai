@@ -22,6 +22,11 @@ function AuthPage() {
     name: ''
   });
 
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -35,6 +40,12 @@ function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       let response;

@@ -70,7 +70,8 @@ const ChatWindow = ({
               key={`${msg.id || idx}-${msg.timestamp}`}
               content={msg.content}
               role={msg.role}
-              showTimestamp={false}
+              showTimestamp={true}
+              timestamp={msg.timestamp}
             />
           ))}
         </AnimatePresence>

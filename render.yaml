@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: devsphere-api
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: node src/index.js
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        value: mongodb+srv://CodingMaster:Hardik01@programming.eguuykj.mongodb.net/?appName=Programming
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://devsphere-ai.vercel.app
+      - key: OLLAMA_BASE_URL
+        value: http://localhost:11434
+      - key: OLLAMA_MODEL
+        value: gemma:2b

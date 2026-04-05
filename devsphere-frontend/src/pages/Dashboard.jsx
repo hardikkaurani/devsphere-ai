@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from '../components/layout/MainLayout';
 import Sidebar from '../components/layout/Sidebar';
@@ -17,6 +17,18 @@ function Dashboard() {
   const [selectedAgent, setSelectedAgent] = useState('general');
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Handle Escape key to close sidebar
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape' && sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => window.removeEventListener('keydown', handleEscapeKey);
+  }, [sidebarOpen]);
 
   // Handle sending messages
   const handleSend = async () => {
@@ -123,7 +135,7 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* Agent Badge */}
+            {/* Agent Badge & Stats */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -131,6 +143,9 @@ function Dashboard() {
             >
               <div className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-600/20 border border-blue-500/30 text-xs font-medium text-blue-300">
                 {selectedAgent.toUpperCase()}
+              </div>
+              <div className="px-2 py-1 rounded-full bg-slate-700/50 text-xs text-slate-400">
+                {messages.length} messages
               </div>
               <button
                 onClick={() => {

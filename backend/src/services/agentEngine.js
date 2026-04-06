@@ -1,7 +1,10 @@
 const axios = require("axios")
+const { getConfig } = require("../utils/environment")
 
 exports.runAgent = async (agentType, messages) => {
   try {
+    const config = getConfig()
+    
     let systemPrompt = ""
 
     if (agentType === "coding") {
@@ -17,9 +20,9 @@ exports.runAgent = async (agentType, messages) => {
     const fullPrompt = systemPrompt + "\nUser: " + userMessage
 
     const response = await axios.post(
-      "http://localhost:11434/api/generate",
+      `${config.ollamaBaseUrl}/api/generate`,
       {
-        model: "gemma:2b",
+        model: config.ollamaModel,
         prompt: fullPrompt,
         stream: false
       }

@@ -14,7 +14,7 @@ services:
       - key: PORT
         value: 10000
       - key: MONGODB_URI
-        value: mongodb+srv://CodingMaster:Hardik01@programming.eguuykj.mongodb.net/?appName=Programming
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN

@@ -6,6 +6,7 @@ import clsx from 'clsx';
 /**
  * Animated Message Bubble Component
  * Smooth entrance and exit animations with copy functionality
+ * Wrapped with React.memo to prevent unnecessary re-renders
  */
 
 const MessageBubble = ({ 
@@ -126,4 +127,6 @@ const MessageBubble = ({
   );
 };
 
-export default MessageBubble;
+// React.memo prevents re-renders when parent updates but props stay the same
+// This is crucial because when a new message arrives, we don't want to re-render all previous messages
+export default React.memo(MessageBubble);

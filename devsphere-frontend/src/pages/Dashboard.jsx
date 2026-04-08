@@ -30,25 +30,25 @@ function Dashboard() {
     return () => window.removeEventListener('keydown', handleEscapeKey);
   }, [sidebarOpen]);
 
-  // Handle sending messages
+  // Handle sending messages - Optimized version
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage = input;
     setInput('');
+    setIsLoading(true);
 
-    // Add user message to UI
-    const newMessages = [
-      ...messages,
+    // Add user message immediately with functional update to avoid closure issues
+    // This single update is better than multiple setMessages calls
+    setMessages(prevMessages => [
+      ...prevMessages,
       {
         id: Date.now(),
         role: 'user',
         content: userMessage,
         timestamp: new Date()
       }
-    ];
-    setMessages(newMessages);
-    setIsLoading(true);
+    ]);
 
     try {
       // Call backend API
@@ -57,31 +57,24 @@ function Dashboard() {
         message: userMessage
       });
 
-      if (response.success) {
-        setMessages([
-          ...newMessages,
-          {
-            id: Date.now() + 1,
-            role: 'assistant',
-            content: response.reply,
-            timestamp: new Date()
-          }
-        ]);
-      } else {
-        setMessages([
-          ...newMessages,
-          {
-            id: Date.now() + 1,
-            role: 'assistant',
-            content: 'Sorry, something went wrong. Please try again.',
-            timestamp: new Date()
-          }
-        ]);
-      }
+      // Add assistant message in one update
+      const assistantContent = response.success 
+        ? response.reply 
+        : 'Sorry, something went wrong. Please try again.';
+
+      setMessages(prevMessages => [
+        ...prevMessages,
+        {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: assistantContent,
+          timestamp: new Date()
+        }
+      ]);
     } catch (error) {
       console.error('Error sending message:', error);
-      setMessages([
-        ...newMessages,
+      setMessages(prevMessages => [
+        ...prevMessages,
         {
           id: Date.now() + 1,
           role: 'assistant',

@@ -85,6 +85,8 @@ const Sidebar = ({
               onClick={() => onAgentChange(agent.id)}
               whileHover={{ x: 4 }}
               whileTap={{ scale: 0.98 }}
+              aria-pressed={isSelected}
+              aria-label={`${agent.name} agent - ${agent.description}`}
               className={clsx(
                 'w-full text-left p-4 rounded-lg transition-all duration-200',
                 'flex items-start gap-3',

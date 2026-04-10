@@ -2,6 +2,33 @@ const mongoose = require("mongoose")
 const AgentSession = require("../models/AgentSession")
 const Message = require("../models/Message")
 const aiService = require("../services/aiService")
+const logger = require("../utils/logger")
+
+// Helper: Get or create session
+const getOrCreateSession = async (sessionId, agentType, firstMessage) => {
+  if (sessionId) {
+    if (!mongoose.Types.ObjectId.isValid(sessionId)) {
+      const error = new Error('Invalid session ID');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    const session = await AgentSession.findById(sessionId);
+    if (!session) {
+      const error = new Error('Session not found');
+      error.statusCode = 404;
+      throw error;
+    }
+    
+    logger.info(`Using existing session: ${sessionId}`);
+    return session;
+  }
+  
+  const shortTitle = firstMessage.substring(0, 30);
+  const newSession = await AgentSession.create({ agentType, title: shortTitle });
+  logger.info(`Created new session: ${newSession._id} for agent type: ${agentType}`);
+  return newSession;
+};
 
 // 💬 CHAT WITH AGENT
 exports.chatWithAgent = async (req, res) => {
@@ -15,36 +42,7 @@ exports.chatWithAgent = async (req, res) => {
       })
     }
 
-    let session
-
-    // If sessionId exists → validate + fetch
-    if (sessionId) {
-
-      if (!mongoose.Types.ObjectId.isValid(sessionId)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid session ID"
-        })
-      }
-
-      session = await AgentSession.findById(sessionId)
-
-      if (!session) {
-        return res.status(404).json({
-          success: false,
-          message: "Session not found"
-        })
-      }
-
-    } else {
-
-      const shortTitle = message.substring(0, 30)
-
-      session = await AgentSession.create({
-        agentType,
-        title: shortTitle
-      })
-    }
+    const session = await getOrCreateSession(sessionId, agentType, message);
 
     // Save user message
     await Message.create({

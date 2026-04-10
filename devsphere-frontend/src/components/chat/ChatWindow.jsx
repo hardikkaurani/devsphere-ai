@@ -38,7 +38,7 @@ const ChatWindow = ({
       {/* Chat Messages Area */}
       <div
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth"
+        className="flex-1 overflow-y-auto px-4 py-8 space-y-5 scroll-smooth"
         style={{
           scrollBehavior: 'smooth',
           scrollbarWidth: 'thin',
@@ -95,7 +95,7 @@ const ChatWindow = ({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-slate-700/30 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent backdrop-blur-sm px-4 py-6">
+      <div className="border-t border-slate-700/30 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent backdrop-blur-sm px-6 py-8">
         <ChatInput
           value={input}
           onChange={(e) => setInput(e.target.value)}

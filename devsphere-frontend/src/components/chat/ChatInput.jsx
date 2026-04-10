@@ -56,16 +56,18 @@ const ChatInput = ({
         onClick={onSend}
         disabled={disabled || !value.trim()}
         className={clsx(
-          'p-3 rounded-xl',
+          'px-4 py-3 rounded-xl',
           'bg-gradient-to-r from-blue-500 to-indigo-600',
           'text-white transition-all duration-200',
           'hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/30',
-          'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
-          'flex items-center justify-center'
+          'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:scale-95',
+          'flex items-center justify-center gap-2',
+          'font-medium text-sm'
         )}
-        aria-label="Send message"
+        aria-label={disabled ? "Sending message" : "Send message"}
       >
         <Send className="w-4 h-4" />
+        {disabled && <span className="hidden sm:inline">Sending...</span>}
       </button>
     </div>
   );

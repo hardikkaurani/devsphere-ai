@@ -15,40 +15,50 @@ const globalErrorHandler = (err, req, res, next) => {
   // Set default values
   err.statusCode = err.statusCode || 500;
   err.message = err.message || 'Internal Server Error';
+  const errorType = err.name || 'UnknownError';
 
   // Wrong MongoDB ID error
   if (err.name === 'MongoServerError' && err.code === 11000) {
     const field = Object.keys(err.keyPattern)[0];
-    err.message = `${field} already exists`;
+    err.message = `Duplicate field: ${field} already exists`;
     err.statusCode = 409;
   }
 
   // JWT Errors
   if (err.name === 'JsonWebTokenError') {
-    err.message = 'Invalid token';
+    err.message = 'Invalid or malformed token';
     err.statusCode = 401;
   }
 
   if (err.name === 'TokenExpiredError') {
-    err.message = 'Token has expired';
+    err.message = 'Token has expired. Please login again';
     err.statusCode = 401;
   }
 
   // Validation Error
   if (err.name === 'ValidationError') {
     const errors = Object.values(err.errors).map(e => e.message);
-    err.message = 'Validation failed';
+    err.message = `Validation failed: ${errors.join(', ')}`;
     err.statusCode = 400;
   }
 
-  // Log error details
+  // MongoDB Cast Error
+  if (err.name === 'CastError') {
+    err.message = `Invalid ${err.path}: ${err.value}`;
+    err.statusCode = 400;
+  }
+
+  // Log error details with categorization
   logger.error({
+    errorType,
     message: err.message,
     statusCode: err.statusCode,
     stack: err.stack,
     path: req.path,
     method: req.method,
-    ip: req.ip
+    ip: req.ip,
+    userId: req.user?.id || 'anonymous',
+    timestamp: new Date().toISOString()
   });
 
   // Send response

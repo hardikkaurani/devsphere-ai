@@ -51,10 +51,12 @@ You maintain context across conversations.`
   }
 
   /**
-   * Send request to Ollama
+   * Send request to Ollama with timing metrics
    */
   async callOllama(prompt) {
+    const startTime = Date.now();
     try {
+      logger.debug(`Ollama request initiated. Model: ${this.model}`);
       const response = await axios.post(
         `${this.baseUrl}/api/generate`,
         {
@@ -65,9 +67,12 @@ You maintain context across conversations.`
         { timeout: this.timeout }
       );
 
+      const duration = Date.now() - startTime;
+      logger.info(`Ollama request completed in ${duration}ms`);
       return response.data.response;
     } catch (error) {
-      logger.error('Ollama API error:', error.message);
+      const duration = Date.now() - startTime;
+      logger.error(`Ollama API error after ${duration}ms:`, error.message);
       throw new ExternalServiceError(error.message, 'Ollama');
     }
   }

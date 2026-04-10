@@ -58,6 +58,8 @@ const MessageBubble = ({
       initial="hidden"
       animate="visible"
       exit="exit"
+      role="article"
+      aria-label={`${isUser ? 'Your' : 'Assistant'} message: ${content.substring(0, 50)}`}
       className={clsx(
         'flex',
         isUser ? 'justify-end' : 'justify-start',
@@ -72,6 +74,7 @@ const MessageBubble = ({
             ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-br-none shadow-lg shadow-blue-500/20'
             : 'bg-slate-700/40 text-slate-100 rounded-bl-none border border-slate-600/30 shadow-lg shadow-black/20'
         )}
+        aria-live={!isUser ? 'polite' : 'off'}
       >
         {isLoading ? (
           <div className="flex gap-1.5 py-2">

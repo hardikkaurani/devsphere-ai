@@ -1,18 +1,27 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import { Zap, Code, FileText, MessageSquare } from 'lucide-react';
+import { Zap, Code, FileText, MessageSquare, Trash2, Edit2, Check, X } from 'lucide-react';
+import { getSessions, renameSession, deleteSession } from '../../services/api';
 
 /**
  * Sidebar Component
- * Agent selection and navigation
+ * Agent selection and session history management
  */
 
 const Sidebar = ({
   selectedAgent = 'general',
   onAgentChange,
-  isOpen = true
+  currentSessionId = null,
+  onSessionSelect = null,
+  isOpen = true,
+  refreshTrigger = 0
 }) => {
+  const [sessions, setSessions] = useState([]);
+  const [editingSessionId, setEditingSessionId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+
   const agents = [
     {
       id: 'general',
@@ -37,12 +46,75 @@ const Sidebar = ({
     }
   ];
 
+  // Load sessions on mount and when refreshTrigger changes
+  useEffect(() => {
+    loadSessions();
+  }, [refreshTrigger]);
+
+  const loadSessions = async () => {
+    setIsLoadingSessions(true);
+    try {
+      const response = await getSessions();
+      if (response.success && response.sessions) {
+        setSessions(response.sessions);
+      }
+    } catch (error) {
+      console.error('Failed to load sessions:', error);
+    } finally {
+      setIsLoadingSessions(false);
+    }
+  };
+
+  const handleRenameStart = (session) => {
+    setEditingSessionId(session._id);
+    setEditTitle(session.title);
+  };
+
+  const handleRenameSave = async (sessionId) => {
+    if (!editTitle.trim()) return;
+
+    try {
+      const response = await renameSession(sessionId, editTitle);
+      if (response.success) {
+        setSessions(sessions.map(s =>
+          s._id === sessionId ? { ...s, title: editTitle } : s
+        ));
+        setEditingSessionId(null);
+      }
+    } catch (error) {
+      console.error('Failed to rename session:', error);
+    }
+  };
+
+  const handleDelete = async (sessionId) => {
+    if (!window.confirm('Delete this session? This action cannot be undone.')) return;
+
+    try {
+      const response = await deleteSession(sessionId);
+      if (response.success) {
+        setSessions(sessions.filter(s => s._id !== sessionId));
+      }
+    } catch (error) {
+      console.error('Failed to delete session:', error);
+    }
+  };
+
+  const getAgentIcon = (agentType) => {
+    const agent = agents.find(a => a.id === agentType);
+    return agent ? agent.icon : MessageSquare;
+  };
+
+  const getAgentLabel = (agentType) => {
+    const agent = agents.find(a => a.id === agentType);
+    return agent ? agent.name : 'General';
+  };
+
   return (
     <motion.div
       initial={{ x: -300, opacity: 0 }}
-      animate={{ 
-        x: isOpen ? 0 : -300, 
-        opacity: isOpen ? 1 : 0 
+      animate={{
+        x: isOpen ? 0 : -300,
+        opacity: isOpen ? 1 : 0
       }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={clsx(
@@ -71,7 +143,7 @@ const Sidebar = ({
       </div>
 
       {/* Agents List */}
-      <div className="space-y-3 flex-1">
+      <div className="space-y-3 mb-8">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
           Select Agent
         </p>
@@ -107,8 +179,143 @@ const Sidebar = ({
         })}
       </div>
 
+      {/* Session History */}
+      <div className="flex-1 flex flex-col min-h-0 border-t border-slate-700/30 pt-4">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+          Chat History
+        </p>
+
+        {isLoadingSessions ? (
+          <div className="flex items-center justify-center flex-1">
+            <p className="text-xs text-slate-500">Loading sessions...</p>
+          </div>
+        ) : sessions.length === 0 ? (
+          <div className="flex items-center justify-center flex-1">
+            <p className="text-xs text-slate-500 text-center">
+              No conversations yet. Start chatting to create one!
+            </p>
+          </div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              className="space-y-2 overflow-y-auto flex-1"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.05 }
+                }
+              }}
+            >
+              {sessions.map((session) => {
+                const AgentIcon = getAgentIcon(session.agentType);
+                const isCurrentSession = currentSessionId === session._id;
+                const isEditing = editingSessionId === session._id;
+
+                return (
+                  <motion.div
+                    key={session._id}
+                    layout
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className={clsx(
+                      'group rounded-lg p-3 transition-all duration-200',
+                      'border border-slate-700/30',
+                      isCurrentSession
+                        ? 'bg-slate-700/50 border-slate-600'
+                        : 'bg-slate-800/30 hover:bg-slate-800/50'
+                    )}
+                  >
+                    {isEditing ? (
+                      // Edit Mode
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          placeholder="Session title..."
+                          className={clsx(
+                            'w-full px-2 py-1 rounded text-sm',
+                            'bg-slate-700 text-white border border-slate-600',
+                            'focus:outline-none focus:border-blue-500'
+                          )}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleRenameSave(session._id);
+                            if (e.key === 'Escape') setEditingSessionId(null);
+                          }}
+                        />
+                        <div className="flex gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleRenameSave(session._id)}
+                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded text-xs bg-green-600/80 hover:bg-green-600 text-white transition-colors"
+                          >
+                            <Check className="w-3 h-3" />
+                            Save
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setEditingSessionId(null)}
+                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded text-xs bg-slate-600/80 hover:bg-slate-600 text-white transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                            Cancel
+                          </motion.button>
+                        </div>
+                      </div>
+                    ) : (
+                      // View Mode
+                      <div className="flex items-start gap-2">
+                        <AgentIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-400" />
+                        <div
+                          className="flex-1 min-w-0 cursor-pointer"
+                          onClick={() => onSessionSelect && onSessionSelect(session._id)}
+                        >
+                          <p className="text-sm font-medium text-slate-200 truncate">
+                            {session.title}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {getAgentLabel(session.agentType)} • {new Date(session.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleRenameStart(session)}
+                            className="p-1 rounded hover:bg-slate-600/50 text-slate-400 hover:text-blue-400 transition-colors"
+                            title="Rename"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleDelete(session._id)}
+                            className="p-1 rounded hover:bg-slate-600/50 text-slate-400 hover:text-red-400 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </motion.button>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </div>
+
       {/* Footer Info */}
-      <div className="border-t border-slate-700/30 pt-4">
+      <div className="border-t border-slate-700/30 pt-4 mt-4">
         <p className="text-xs text-slate-500 leading-relaxed">
           💡 Tip: Switch between agents to change the AI's behavior and capabilities.
         </p>

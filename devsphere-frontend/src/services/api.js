@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import { API_ENDPOINTS, API_BASE_URL } from '../constants/apiEndpoints';
 
 // Debug logging helper
 const API_DEBUG = process.env.DEBUG === 'true' || localStorage.getItem('API_DEBUG');
@@ -140,7 +140,7 @@ export const getMessages = async (sessionId) => {
   try {
     const token = localStorage.getItem("token")
 
-    const res = await fetch(`${API_URL}/agent/messages/${sessionId}`, {
+    const res = await fetch(`${API_BASE_URL}/agent/messages/${sessionId}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -156,10 +156,12 @@ export const getMessages = async (sessionId) => {
 
 // Rename Session
 export const renameSession = async (sessionId, title) => {
+  const startTime = performance.now();
+  logApiCall("PUT", `${API_BASE_URL}/agent/sessions/${sessionId}`);
   try {
     const token = localStorage.getItem("token")
 
-    const res = await fetch(`${API_URL}/agent/sessions/${sessionId}`, {
+    const res = await fetch(`${API_BASE_URL}/agent/sessions/${sessionId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -168,30 +170,44 @@ export const renameSession = async (sessionId, title) => {
       body: JSON.stringify({ title })
     })
 
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const duration = Math.round(performance.now() - startTime);
+    logApiCall("PUT", `${API_BASE_URL}/agent/sessions/${sessionId}`, res.status, duration);
     return await res.json()
 
   } catch (err) {
     console.error("Rename Session Error:", err)
-    return { success: false }
+    return { success: false, error: err.message }
   }
 }
 
 // Delete Session
 export const deleteSession = async (sessionId) => {
+  const startTime = performance.now();
+  logApiCall("DELETE", `${API_BASE_URL}/agent/sessions/${sessionId}`);
   try {
     const token = localStorage.getItem("token")
 
-    const res = await fetch(`${API_URL}/agent/sessions/${sessionId}`, {
+    const res = await fetch(`${API_BASE_URL}/agent/sessions/${sessionId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`
       }
     })
 
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const duration = Math.round(performance.now() - startTime);
+    logApiCall("DELETE", `${API_BASE_URL}/agent/sessions/${sessionId}`, res.status, duration);
     return await res.json()
 
   } catch (err) {
     console.error("Delete Session Error:", err)
-    return { success: false }
+    return { success: false, error: err.message }
   }
 }

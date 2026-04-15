@@ -164,9 +164,19 @@ exports.renameSession = async (req, res) => {
       })
     }
 
+    // Validate title
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Title is required and must be a non-empty string"
+      })
+    }
+
+    const trimmedTitle = title.trim().substring(0, 100) // Max 100 chars
+
     const session = await AgentSession.findByIdAndUpdate(
       sessionId,
-      { title },
+      { title: trimmedTitle },
       { new: true }
     )
 
@@ -176,6 +186,8 @@ exports.renameSession = async (req, res) => {
         message: "Session not found"
       })
     }
+
+    logger.info(`Session renamed: ${sessionId} to "${trimmedTitle}"`)
 
     return res.status(200).json({
       success: true,

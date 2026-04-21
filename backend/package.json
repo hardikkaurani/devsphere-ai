@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
   },
   "keywords": [
     "api",
@@ -28,9 +30,11 @@
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.0",
+    "uuid": "^9.0.0",
     "winston": "^3.11.0"
   },
   "devDependencies": {
+    "eslint": "^9.0.0",
     "nodemon": "^3.1.11"
   }
 }

@@ -19,6 +19,7 @@ const aiService = require('./services/aiService');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const agentRoutes = require('./routes/agentRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 // Validate environment
 validateEnvironment();
@@ -74,6 +75,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/agent', agentRoutes);
+app.use('/api/v1/profile', profileRoutes);
 
 // ============================================
 // Database Connection & Server Start

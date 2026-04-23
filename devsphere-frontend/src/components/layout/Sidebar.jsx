@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import clsx from 'clsx';
-import { Zap, Code, FileText, MessageSquare, Trash2, Edit2, Check, X } from 'lucide-react';
+import { Zap, Code, FileText, MessageSquare, Trash2, Edit2, Check, X, User, LogOut } from 'lucide-react';
 import { getSessions, renameSession, deleteSession } from '../../services/api';
 
 /**
@@ -315,7 +316,40 @@ const Sidebar = ({
       </div>
 
       {/* Footer Info */}
-      <div className="border-t border-slate-700/30 pt-4 mt-4">
+      <div className="border-t border-slate-700/30 pt-4 mt-4 space-y-3">
+        {/* User Menu */}
+        <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-700/30">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+            <User className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-slate-200 truncate">Profile</p>
+            <p className="text-xs text-slate-500">Manage account</p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Link
+            to="/profile"
+            className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300 text-xs font-medium transition-colors border border-blue-500/30"
+          >
+            <User className="w-4 h-4" />
+            Profile
+          </Link>
+          <button
+            onClick={() => {
+              localStorage.removeItem('token');
+              window.location.href = '/';
+            }}
+            className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 text-xs font-medium transition-colors border border-red-500/30"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
+        </div>
+
+        {/* Tip */}
         <p className="text-xs text-slate-500 leading-relaxed">
           💡 Tip: Switch between agents to change the AI's behavior and capabilities.
         </p>

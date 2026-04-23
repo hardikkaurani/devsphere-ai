@@ -19,5 +19,12 @@ export const API_ENDPOINTS = {
     CHAT: `${API_BASE_URL}/agent/chat`,
     SESSIONS: `${API_BASE_URL}/agent/sessions`,
     HISTORY: `${API_BASE_URL}/agent/history`
+  },
+  PROFILE: {
+    GET_CURRENT: `${API_BASE_URL}/profile/me`,
+    GET_USER: (userId) => `${API_BASE_URL}/profile/${userId}`,
+    UPDATE: `${API_BASE_URL}/profile/me`,
+    UPDATE_AVATAR: `${API_BASE_URL}/profile/me/avatar`,
+    DELETE: `${API_BASE_URL}/profile/me`
   }
 };

@@ -211,3 +211,116 @@ export const deleteSession = async (sessionId) => {
     return { success: false, error: err.message }
   }
 }
+
+// ============================================
+// 👤 PROFILE
+// ============================================
+
+// Get Current User Profile
+export const getCurrentProfile = async () => {
+  const startTime = performance.now();
+  logApiCall("GET", API_ENDPOINTS.PROFILE.GET_CURRENT);
+  try {
+    const token = localStorage.getItem("token")
+
+    const res = await fetch(API_ENDPOINTS.PROFILE.GET_CURRENT, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const duration = Math.round(performance.now() - startTime);
+    logApiCall("GET", API_ENDPOINTS.PROFILE.GET_CURRENT, res.status, duration);
+    return await res.json()
+
+  } catch (err) {
+    console.error("Get Profile Error:", err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+// Get User Profile by ID
+export const getUserProfile = async (userId) => {
+  const startTime = performance.now();
+  const endpoint = API_ENDPOINTS.PROFILE.GET_USER(userId);
+  logApiCall("GET", endpoint);
+  try {
+    const res = await fetch(endpoint)
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const duration = Math.round(performance.now() - startTime);
+    logApiCall("GET", endpoint, res.status, duration);
+    return await res.json()
+
+  } catch (err) {
+    console.error("Get User Profile Error:", err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+// Update User Profile
+export const updateProfile = async (profileData) => {
+  const startTime = performance.now();
+  logApiCall("PUT", API_ENDPOINTS.PROFILE.UPDATE);
+  try {
+    const token = localStorage.getItem("token")
+
+    const res = await fetch(API_ENDPOINTS.PROFILE.UPDATE, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(profileData)
+    })
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const duration = Math.round(performance.now() - startTime);
+    logApiCall("PUT", API_ENDPOINTS.PROFILE.UPDATE, res.status, duration);
+    return await res.json()
+
+  } catch (err) {
+    console.error("Update Profile Error:", err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+// Update User Avatar
+export const updateAvatar = async (avatarUrl) => {
+  const startTime = performance.now();
+  logApiCall("PUT", API_ENDPOINTS.PROFILE.UPDATE_AVATAR);
+  try {
+    const token = localStorage.getItem("token")
+
+    const res = await fetch(API_ENDPOINTS.PROFILE.UPDATE_AVATAR, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ avatar: avatarUrl })
+    })
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const duration = Math.round(performance.now() - startTime);
+    logApiCall("PUT", API_ENDPOINTS.PROFILE.UPDATE_AVATAR, res.status, duration);
+    return await res.json()
+
+  } catch (err) {
+    console.error("Update Avatar Error:", err.message)
+    return { success: false, error: err.message }
+  }
+}

@@ -14,6 +14,7 @@ const rateLimit = require('express-rate-limit');
 const logger = require('./utils/logger');
 const { validateEnvironment, getConfig } = require('./utils/environment');
 const { globalErrorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const { addRequestId } = require('./middleware/requestTracing');
 const aiService = require('./services/aiService');
 
 // Import routes
@@ -60,6 +61,9 @@ app.use(limiter);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Add request tracing to all requests
+app.use(addRequestId);
 
 // ============================================
 // Health Check Route

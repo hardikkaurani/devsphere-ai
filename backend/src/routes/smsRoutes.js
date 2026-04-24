@@ -9,41 +9,45 @@ const router = express.Router();
 const SMSController = require('../controllers/smsController');
 const authMiddleware = require('../middleware/authMiddleware');
 const inputValidation = require('../middleware/inputValidation');
+const { smsProcessLimiter, smsBatchLimiter, smsListLimiter } = require('../middleware/smsRateLimit');
 
 // Apply authentication to all routes
 router.use(authMiddleware);
 
 /**
- * POST /api/sms/process
+ * POST /api/v1/sms/process
  * Process a single SMS message
  */
 router.post(
   '/process',
+  smsProcessLimiter,
   inputValidation.validateSMS,
   SMSController.processSMS
 );
 
 /**
- * POST /api/sms/batch
+ * POST /api/v1/sms/batch
  * Process batch of SMS messages
  */
 router.post(
   '/batch',
+  smsBatchLimiter,
   inputValidation.validateSMSBatch,
   SMSController.processBatch
 );
 
 /**
- * GET /api/sms/list
+ * GET /api/v1/sms/list
  * Get SMS messages for authenticated user
  */
 router.get(
   '/list',
+  smsListLimiter,
   SMSController.listSMS
 );
 
 /**
- * GET /api/sms/:id
+ * GET /api/v1/sms/:id
  * Get specific SMS details
  */
 router.get(
@@ -52,7 +56,7 @@ router.get(
 );
 
 /**
- * GET /api/sms/statistics/summary
+ * GET /api/v1/sms/statistics/summary
  * Get SMS processing statistics
  */
 router.get(
@@ -61,7 +65,7 @@ router.get(
 );
 
 /**
- * POST /api/sms/retry-failed
+ * POST /api/v1/sms/retry-failed
  * Manually retry failed SMS processing
  */
 router.post(
@@ -70,7 +74,7 @@ router.post(
 );
 
 /**
- * DELETE /api/sms/cleanup
+ * DELETE /api/v1/sms/cleanup
  * Cleanup old SMS records
  */
 router.delete(
@@ -79,7 +83,7 @@ router.delete(
 );
 
 /**
- * GET /api/sms/health
+ * GET /api/v1/sms/health/status
  * Worker health check
  */
 router.get(

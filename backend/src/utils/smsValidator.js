@@ -8,14 +8,25 @@ const logger = require('./logger');
 class SMSValidator {
   /**
    * Validate phone number format
+   * Supports international: +1-555-123-4567, +91 XXXXX XXXXX, +44 20 XXXX XXXX
    */
   static isValidPhoneNumber(phoneNumber) {
     if (!phoneNumber || typeof phoneNumber !== 'string') {
       return false;
     }
 
-    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
-    return phoneRegex.test(phoneNumber.trim());
+    // Clean up phone number
+    const cleaned = phoneNumber.trim().replace(/[\s().\-]/g, '');
+    
+    // Check format: +CC or CC followed by 6-14 digits
+    const phoneRegex = /^\+?[0-9]{1,3}[0-9]{6,14}$/;
+    
+    if (!phoneRegex.test(cleaned)) {
+      return false;
+    }
+    
+    // Ensure at least 10 digits total
+    return cleaned.replace(/\D/g, '').length >= 10;
   }
 
   /**

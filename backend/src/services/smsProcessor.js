@@ -100,7 +100,7 @@ class SMSProcessor {
   }
 
   /**
-   * Process batch of SMS messages
+   * Process batch of SMS messages with error recovery
    */
   static async processBatch(smsList, batchSize = 10) {
     logger.info(`Starting batch SMS processing: ${smsList.length} messages`);
@@ -110,40 +110,75 @@ class SMSProcessor {
       successful: 0,
       failed: 0,
       duplicates: 0,
-      results: []
+      results: [],
+      processingTime: null,
+      completedAt: null
     };
 
+    const startTime = Date.now();
+
     try {
+      // Validate batch first
+      if (!Array.isArray(smsList) || smsList.length === 0) {
+        throw new Error('Invalid batch: must be non-empty array');
+      }
+
+      if (smsList.length > 1000) {
+        throw new Error('Batch too large: maximum 1000 SMS per batch');
+      }
+
       // Process in chunks to avoid overwhelming the system
       for (let i = 0; i < smsList.length; i += batchSize) {
         const batch = smsList.slice(i, i + batchSize);
-        const batchResults = await Promise.allSettled(
-          batch.map(sms => this.processSMS(sms))
-        );
+        
+        try {
+          const batchResults = await Promise.allSettled(
+            batch.map(sms => this.processSMS(sms))
+          );
 
-        for (const result of batchResults) {
-          if (result.status === 'fulfilled') {
-            const value = result.value;
-            if (value.status === 'SUCCESS') {
-              results.successful++;
-            } else if (value.status === 'DUPLICATE') {
-              results.duplicates++;
+          for (const result of batchResults) {
+            if (result.status === 'fulfilled') {
+              const value = result.value;
+              if (value.status === 'SUCCESS') {
+                results.successful++;
+              } else if (value.status === 'DUPLICATE') {
+                results.duplicates++;
+              } else {
+                results.failed++;
+              }
+              results.results.push(value);
             } else {
               results.failed++;
+              results.results.push({
+                status: 'ERROR',
+                error: result.reason?.message || 'Unknown error',
+                code: result.reason?.code || 'BATCH_PROCESS_ERROR'
+              });
             }
-            results.results.push(value);
-          } else {
-            results.failed++;
+          }
+
+          // Log batch progress
+          const processed = Math.min(i + batchSize, smsList.length);
+          logger.info(`Batch progress: ${processed}/${smsList.length}`, {
+            successful: results.successful,
+            failed: results.failed
+          });
+        } catch (batchError) {
+          logger.error(`Batch chunk error at index ${i}:`, batchError);
+          // Continue processing other chunks instead of failing entire batch
+          results.failed += batch.length;
+          batch.forEach((_, idx) => {
             results.results.push({
               status: 'ERROR',
-              error: result.reason?.message || 'Unknown error'
+              error: batchError.message,
+              code: 'BATCH_CHUNK_ERROR'
             });
-          }
+          });
         }
-
-        // Log progress
-        logger.info(`Batch progress: ${Math.min(i + batchSize, smsList.length)}/${smsList.length}`);
       }
+
+      results.processingTime = Date.now() - startTime;
+      results.completedAt = new Date().toISOString();
 
       logger.info('Batch SMS processing completed', results);
       return results;
@@ -151,7 +186,10 @@ class SMSProcessor {
       logger.error('Batch processing error:', error);
       return {
         ...results,
-        error: error.message
+        error: error.message,
+        code: error.code || 'BATCH_PROCESS_ERROR',
+        processingTime: Date.now() - startTime,
+        completedAt: new Date().toISOString()
       };
     }
   }

@@ -63,24 +63,24 @@ class SMSParser {
   }
 
   /**
-   * Extract OTP from SMS
+   * Extract OTP from SMS - Handles: "123456", "12 34 56", "OTP: 123456"
    */
   static extractOTP(content) {
     const otpPatterns = [
-      /\b(\d{6})\b/, // 6-digit OTP
-      /\b(\d{4})\b/, // 4-digit OTP
-      /otp[:\s]+(\d{4,6})/i, // OTP: 1234
-      /code[:\s]+(\d{4,6})/i, // Code: 1234
-      /password[:\s]+(\d{4,6})/i // Password: 1234
+      /otp[:\s\-]+(\d{1}(?:\s?\d){3,7})/i,
+      /code[:\s\-]+(\d{1}(?:\s?\d){3,7})/i,
+      /password[:\s\-]+(\d{1}(?:\s?\d){3,7})/i,
+      /\b(\d{6})\b/,
+      /\b(\d{4})\b/
     ];
 
     for (const pattern of otpPatterns) {
       const match = content.match(pattern);
-      if (match) {
-        return {
-          found: true,
-          otp: match[1]
-        };
+      if (match && match[1]) {
+        const otp = match[1].replace(/\s/g, '');
+        if (otp.length >= 4 && otp.length <= 8) {
+          return { found: true, otp };
+        }
       }
     }
 
@@ -89,6 +89,7 @@ class SMSParser {
 
   /**
    * Extract transaction information
+   * Handles: "Debited 500", "₹ 5,000", "RS 10000"
    */
   static extractTransaction(content) {
     const result = { found: false };
@@ -97,27 +98,28 @@ class SMSParser {
     const amountPatterns = [
       /(?:rs|₹|usd|amount)[:\s]*(?:rupees\s+)?([0-9,]+(?:\.[0-9]{2})?)/i,
       /([0-9,]+(?:\.[0-9]{2})?)\s*(?:rs|₹|rupees|usd)/i,
-      /₹\s*([0-9,]+(?:\.[0-9]{2})?)/
+      /₹\s*([0-9,]+(?:\.[0-9]{2})?)/,
+      /(?:amount|debited|credited)[:\s]*([0-9,]+(?:\.[0-9]{2})?)/i
     ];
 
     for (const pattern of amountPatterns) {
       const match = content.match(pattern);
-      if (match) {
+      if (match && match[1]) {
         result.found = true;
         result.amount = match[1];
         break;
       }
     }
 
-    // Transaction status
+    // Transaction status - more comprehensive
     const statusPatterns = [
-      /(?:status|transaction)[:\s]*(successful|failed|pending|credited|debited|completed)/i,
-      /(successful|failed|pending|credited|debited|completed)\s+(?:transaction|transaction)/i
+      /(?:status|transaction)[:\s]*(successful|failed|pending|credited|debited|completed|approved|rejected|declined)/i,
+      /(successful|failed|pending|credited|debited|completed|approved|rejected|declined)\s+successfully/i
     ];
 
     for (const pattern of statusPatterns) {
       const match = content.match(pattern);
-      if (match) {
+      if (match && match[1]) {
         result.found = true;
         result.status = match[1].toLowerCase();
         break;
@@ -126,13 +128,13 @@ class SMSParser {
 
     // Transaction ID
     const transactionIdPatterns = [
-      /(?:ref|ref\.|reference|txn|transaction id)[:\s]*([A-Z0-9]{8,20})/i,
+      /(?:ref|ref\.|reference|txn|transaction id|trans)[:\s#]*([A-Z0-9]{6,20})/i,
       /id[:\s]*([A-Z0-9]{8,20})/i
     ];
 
     for (const pattern of transactionIdPatterns) {
       const match = content.match(pattern);
-      if (match) {
+      if (match && match[1]) {
         result.found = true;
         result.transactionId = match[1];
         break;

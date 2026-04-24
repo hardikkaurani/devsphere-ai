@@ -14,12 +14,17 @@ const rateLimit = require('express-rate-limit');
 const logger = require('./utils/logger');
 const { validateEnvironment, getConfig } = require('./utils/environment');
 const { globalErrorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const { addRequestId } = require('./middleware/requestTracing');
 const aiService = require('./services/aiService');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const agentRoutes = require('./routes/agentRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const smsRoutes = require('./routes/smsRoutes');
+
+// Import SMS worker
+const smsWorker = require('./workers/smsWorker');
 
 // Validate environment
 validateEnvironment();
@@ -57,6 +62,9 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// Add request tracing to all requests
+app.use(addRequestId);
+
 // ============================================
 // Health Check Route
 // ============================================
@@ -76,6 +84,7 @@ app.get('/health', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/agent', agentRoutes);
 app.use('/api/v1/profile', profileRoutes);
+app.use('/api/v1/sms', smsRoutes);
 
 // ============================================
 // Database Connection & Server Start
@@ -106,6 +115,15 @@ const startServer = async () => {
       logger.warn('⚠ Ollama AI engine is not available - some features may not work');
     }
 
+    // Initialize SMS Background Worker
+    try {
+      await smsWorker.initialize();
+      logger.info('✓ SMS background worker initialized');
+    } catch (workerError) {
+      logger.error('Failed to initialize SMS worker:', workerError);
+      // Don't exit - SMS worker is optional
+    }
+
     // ============================================
     // 404 & Error Handling Middleware
     // ============================================
@@ -131,6 +149,10 @@ const startServer = async () => {
     // Graceful shutdown
     process.on('SIGTERM', () => {
       logger.info('SIGTERM received, shutting down gracefully');
+      
+      // Stop SMS worker
+      smsWorker.stop();
+      
       server.close(() => {
         logger.info('Server closed');
         mongoose.connection.close(false, () => {

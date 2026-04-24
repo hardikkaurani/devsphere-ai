@@ -146,9 +146,160 @@ const validateAuthInput = (req, res, next) => {
   }
 };
 
+/**
+ * Middleware to validate SMS input
+ */
+const validateSMS = (req, res, next) => {
+  try {
+    const { phoneNumber, sender, content } = req.body;
+
+    // Validate phone number
+    if (!phoneNumber || typeof phoneNumber !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number is required and must be a string'
+      });
+    }
+
+    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+    if (!phoneRegex.test(phoneNumber.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone number format'
+      });
+    }
+
+    // Validate sender
+    if (!sender || typeof sender !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Sender is required and must be a string'
+      });
+    }
+
+    if (sender.trim().length === 0 || sender.length > 100) {
+      return res.status(400).json({
+        success: false,
+        message: 'Sender must be between 1 and 100 characters'
+      });
+    }
+
+    // Validate content
+    if (!content || typeof content !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'SMS content is required and must be a string'
+      });
+    }
+
+    const trimmedContent = content.trim();
+    if (trimmedContent.length === 0 || trimmedContent.length > 5000) {
+      return res.status(400).json({
+        success: false,
+        message: 'SMS content must be between 1 and 5000 characters'
+      });
+    }
+
+    // Sanitize inputs
+    req.body.phoneNumber = phoneNumber.trim();
+    req.body.sender = sender.trim();
+    req.body.content = trimmedContent;
+
+    next();
+  } catch (error) {
+    logger.error('SMS validation error:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Invalid SMS request'
+    });
+  }
+};
+
+/**
+ * Middleware to validate SMS batch input
+ */
+const validateSMSBatch = (req, res, next) => {
+  try {
+    const { smsList } = req.body;
+
+    if (!Array.isArray(smsList)) {
+      return res.status(400).json({
+        success: false,
+        message: 'smsList must be an array'
+      });
+    }
+
+    if (smsList.length === 0 || smsList.length > 1000) {
+      return res.status(400).json({
+        success: false,
+        message: 'smsList must contain between 1 and 1000 items'
+      });
+    }
+
+    // Validate each SMS in batch
+    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+
+    for (let i = 0; i < smsList.length; i++) {
+      const sms = smsList[i];
+
+      // Validate structure
+      if (!sms || typeof sms !== 'object') {
+        return res.status(400).json({
+          success: false,
+          message: `SMS at index ${i} must be an object`
+        });
+      }
+
+      const { phoneNumber, sender, content } = sms;
+
+      // Validate phone number
+      if (!phoneNumber || !phoneRegex.test(phoneNumber.toString().trim())) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid phone number at index ${i}`
+        });
+      }
+
+      // Validate sender
+      if (!sender || sender.toString().trim().length === 0 || sender.toString().length > 100) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid sender at index ${i}`
+        });
+      }
+
+      // Validate content
+      const trimmedContent = content ? content.toString().trim() : '';
+      if (trimmedContent.length === 0 || trimmedContent.length > 5000) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid content length at index ${i}`
+        });
+      }
+
+      // Sanitize
+      smsList[i] = {
+        phoneNumber: phoneNumber.toString().trim(),
+        sender: sender.toString().trim(),
+        content: trimmedContent
+      };
+    }
+
+    next();
+  } catch (error) {
+    logger.error('SMS batch validation error:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Invalid SMS batch request'
+    });
+  }
+};
+
 module.exports = {
   validateChatInput,
   validateAuthInput,
+  validateSMS,
+  validateSMSBatch,
   sanitizeString,
   validateMessageInput,
   validateEmailInput

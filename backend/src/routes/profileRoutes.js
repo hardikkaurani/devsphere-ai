@@ -3,6 +3,7 @@ const router = express.Router()
 const {
   getProfile,
   getCurrentProfile,
+  getProfileStats,
   updateProfile,
   updateAvatar,
   deleteProfile
@@ -11,11 +12,14 @@ const authMiddleware = require("../middleware/authMiddleware")
 
 /**
  * Profile Routes
- * All routes require authentication
+ * RESTful API for user profile management
  */
 
 // Get current authenticated user's profile
 router.get("/me", authMiddleware, getCurrentProfile)
+
+// Get current user's profile stats (completion %, joined date, etc.)
+router.get("/me/stats", authMiddleware, getProfileStats)
 
 // Get any user's public profile
 router.get("/:userId", getProfile)
@@ -26,7 +30,7 @@ router.put("/me", authMiddleware, updateProfile)
 // Update user's avatar
 router.put("/me/avatar", authMiddleware, updateAvatar)
 
-// Delete profile (soft delete)
+// Delete profile (schedule deletion)
 router.delete("/me", authMiddleware, deleteProfile)
 
 module.exports = router

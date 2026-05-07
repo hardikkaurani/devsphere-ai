@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
     GET_USER: (userId) => `${API_BASE_URL}/profile/${userId}`,
     UPDATE: `${API_BASE_URL}/profile/me`,
     UPDATE_AVATAR: `${API_BASE_URL}/profile/me/avatar`,
+    GET_STATS: `${API_BASE_URL}/profile/me/stats`,
     DELETE: `${API_BASE_URL}/profile/me`
   }
 };

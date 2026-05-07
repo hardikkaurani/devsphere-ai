@@ -324,3 +324,30 @@ export const updateAvatar = async (avatarUrl) => {
     return { success: false, error: err.message }
   }
 }
+
+// Get Profile Stats
+export const getProfileStats = async () => {
+  const startTime = performance.now();
+  logApiCall("GET", API_ENDPOINTS.PROFILE.GET_STATS);
+  try {
+    const token = localStorage.getItem("token")
+
+    const res = await fetch(API_ENDPOINTS.PROFILE.GET_STATS, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const duration = Math.round(performance.now() - startTime);
+    logApiCall("GET", API_ENDPOINTS.PROFILE.GET_STATS, res.status, duration);
+    return await res.json()
+
+  } catch (err) {
+    console.error("Get Profile Stats Error:", err.message)
+    return { success: false, error: err.message }
+  }
+}

@@ -1,7 +1,12 @@
 {
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "outputDirectory": "dist",
+  "installCommand": "npm install --prefix devsphere-frontend",
+  "buildCommand": "npm run build --prefix devsphere-frontend",
+  "outputDirectory": "devsphere-frontend/dist",
   "framework": "vite",
-  "rootDirectory": "devsphere-frontend"
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

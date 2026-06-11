@@ -5,13 +5,12 @@
 
 const logger = require('../utils/logger');
 const { ApiResponse } = require('../utils/response');
-const { AppError } = require('../utils/errors');
 
 /**
  * Main error handler middleware
  * Should be added as the last middleware in Express
  */
-const globalErrorHandler = (err, req, res, next) => {
+const globalErrorHandler = (err, req, res, _next) => {
   // Set default values
   err.statusCode = err.statusCode || 500;
   err.message = err.message || 'Internal Server Error';
@@ -75,7 +74,7 @@ const globalErrorHandler = (err, req, res, next) => {
  * 404 handler middleware
  * Should be added before the global error handler
  */
-const notFoundHandler = (req, res, next) => {
+const notFoundHandler = (req, res) => {
   const response = ApiResponse.error(
     `Route ${req.method} ${req.path} not found`,
     404

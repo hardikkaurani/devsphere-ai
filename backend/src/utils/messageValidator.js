@@ -3,7 +3,6 @@
  * Centralized validation for chat messages and content
  */
 
-const logger = require('./logger');
 
 /**
  * Validate message content

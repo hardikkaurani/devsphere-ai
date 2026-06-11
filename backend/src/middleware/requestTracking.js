@@ -23,7 +23,7 @@ const requestTrackingMiddleware = (req, res, next) => {
 
   // Override res.json to add request ID to responses
   const originalJson = res.json.bind(res);
-  res.json = function(data) {
+  res.json = function (data) {
     // Add request ID to response metadata if not already present
     if (typeof data === 'object' && data !== null) {
       if (!data.requestId) {
@@ -44,7 +44,7 @@ const requestTrackingMiddleware = (req, res, next) => {
 
   // Override res.end to log response
   const originalEnd = res.end.bind(res);
-  res.end = function(...args) {
+  res.end = function (...args) {
     const duration = Date.now() - req.startTime;
     const statusCode = res.statusCode;
 

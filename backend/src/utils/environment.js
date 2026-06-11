@@ -23,7 +23,7 @@ const optionalEnvs = [
  */
 const validateEnvironment = () => {
   const missing = [];
-  
+
   requiredEnvs.forEach(env => {
     if (!process.env[env]) {
       missing.push(env);
@@ -56,5 +56,6 @@ const getConfig = () => ({
 
 module.exports = {
   validateEnvironment,
-  getConfig
+  getConfig,
+  optionalEnvs
 };

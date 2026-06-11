@@ -1,5 +1,6 @@
-const User = require("../models/User")
-const logger = require("../utils/logger")
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const logger = require('../utils/logger');
 
 /**
  * Profile Controller
@@ -17,10 +18,10 @@ const logger = require("../utils/logger")
  * @returns {Object} Sanitized user object
  */
 const sanitizeUserResponse = (user) => {
-  const userObj = user.toObject ? user.toObject() : user
-  delete userObj.password
-  return userObj
-}
+  const userObj = user.toObject ? user.toObject() : user;
+  delete userObj.password;
+  return userObj;
+};
 
 /**
  * Validate profile data
@@ -28,63 +29,63 @@ const sanitizeUserResponse = (user) => {
  * @returns {Object} { valid: boolean, errors: array }
  */
 const validateProfileData = (data) => {
-  const errors = []
+  const errors = [];
 
   if (data.name !== undefined) {
     if (!data.name.trim()) {
-      errors.push('Name cannot be empty')
+      errors.push('Name cannot be empty');
     } else if (data.name.trim().length < 2) {
-      errors.push('Name must be at least 2 characters')
+      errors.push('Name must be at least 2 characters');
     } else if (data.name.length > 100) {
-      errors.push('Name cannot exceed 100 characters')
+      errors.push('Name cannot exceed 100 characters');
     }
   }
 
   if (data.bio !== undefined && data.bio.length > 500) {
-    errors.push('Bio cannot exceed 500 characters')
+    errors.push('Bio cannot exceed 500 characters');
   }
 
   if (data.email !== undefined && data.email) {
-    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(data.email)) {
-      errors.push('Invalid email format')
+      errors.push('Invalid email format');
     }
   }
 
   if (data.phone !== undefined && data.phone.length > 20) {
-    errors.push('Phone cannot exceed 20 characters')
+    errors.push('Phone cannot exceed 20 characters');
   }
 
   if (data.location !== undefined && data.location.length > 100) {
-    errors.push('Location cannot exceed 100 characters')
+    errors.push('Location cannot exceed 100 characters');
   }
 
   if (data.website !== undefined && data.website) {
-    const urlRegex = /^https?:\/\/.+/
+    const urlRegex = /^https?:\/\/.+/;
     if (!urlRegex.test(data.website)) {
-      errors.push('Website must be a valid URL starting with http:// or https://')
+      errors.push('Website must be a valid URL starting with http:// or https://');
     }
   }
 
   if (data.company !== undefined && data.company.length > 100) {
-    errors.push('Company cannot exceed 100 characters')
+    errors.push('Company cannot exceed 100 characters');
   }
 
   if (data.jobTitle !== undefined && data.jobTitle.length > 100) {
-    errors.push('Job title cannot exceed 100 characters')
+    errors.push('Job title cannot exceed 100 characters');
   }
 
   if (data.skills !== undefined && Array.isArray(data.skills)) {
     if (data.skills.length > 20) {
-      errors.push('Cannot have more than 20 skills')
+      errors.push('Cannot have more than 20 skills');
     }
   }
 
   return {
     valid: errors.length === 0,
     errors
-  }
-}
+  };
+};
 
 // ============================================
 // 👤 Profile Endpoints
@@ -93,98 +94,98 @@ const validateProfileData = (data) => {
 // Get user profile by ID (public)
 exports.getProfile = async (req, res) => {
   try {
-    const { userId } = req.params
-    
+    const { userId } = req.params;
+
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User ID is required"
-      })
+        message: 'User ID is required'
+      });
     }
 
-    const user = await User.findById(userId).select('-password')
-    
+    const user = await User.findById(userId).select('-password');
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
-      })
+        message: 'User not found'
+      });
     }
 
-    logger.info(`Profile retrieved for user: ${userId}`)
+    logger.info(`Profile retrieved for user: ${userId}`);
     res.status(200).json({
       success: true,
       profile: sanitizeUserResponse(user)
-    })
+    });
   } catch (err) {
-    logger.error('Get profile error:', err.message)
+    logger.error('Get profile error:', err.message);
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve profile",
+      message: 'Failed to retrieve profile',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    })
+    });
   }
-}
+};
 
 // Get current user profile (authenticated)
 exports.getCurrentProfile = async (req, res) => {
   try {
-    const userId = req.user?.id || req.userId
-    
+    const userId = req.user?.id || req.userId;
+
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized - User ID not found"
-      })
+        message: 'Unauthorized - User ID not found'
+      });
     }
 
-    const user = await User.findById(userId).select('-password')
-    
+    const user = await User.findById(userId).select('-password');
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
-      })
+        message: 'User not found'
+      });
     }
 
-    logger.info(`Current profile retrieved for user: ${userId}`)
+    logger.info(`Current profile retrieved for user: ${userId}`);
     res.status(200).json({
       success: true,
       profile: sanitizeUserResponse(user)
-    })
+    });
   } catch (err) {
-    logger.error('Get current profile error:', err.message)
+    logger.error('Get current profile error:', err.message);
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve profile",
+      message: 'Failed to retrieve profile',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    })
+    });
   }
-}
+};
 
 // Get profile stats (completion, joined date, etc.)
 exports.getProfileStats = async (req, res) => {
   try {
-    const userId = req.user?.id || req.userId
-    
+    const userId = req.user?.id || req.userId;
+
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized"
-      })
+        message: 'Unauthorized'
+      });
     }
 
-    const user = await User.findById(userId).select('-password')
-    
+    const user = await User.findById(userId).select('-password');
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
-      })
+        message: 'User not found'
+      });
     }
 
-    const joinedDate = new Date(user.createdAt)
-    const accountAgeInDays = Math.floor((Date.now() - joinedDate.getTime()) / (1000 * 60 * 60 * 24))
+    const joinedDate = new Date(user.createdAt);
+    const accountAgeInDays = Math.floor((Date.now() - joinedDate.getTime()) / (1000 * 60 * 60 * 24));
 
     res.status(200).json({
       success: true,
@@ -207,27 +208,27 @@ exports.getProfileStats = async (req, res) => {
         ].filter(Boolean).length,
         totalFields: 9
       }
-    })
+    });
   } catch (err) {
-    logger.error('Get profile stats error:', err.message)
+    logger.error('Get profile stats error:', err.message);
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve profile stats",
+      message: 'Failed to retrieve profile stats',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    })
+    });
   }
-}
+};
 
 // Update user profile
 exports.updateProfile = async (req, res) => {
   try {
-    const userId = req.user?.id || req.userId
-    
+    const userId = req.user?.id || req.userId;
+
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized"
-      })
+        message: 'Unauthorized'
+      });
     }
 
     const {
@@ -243,145 +244,220 @@ exports.updateProfile = async (req, res) => {
       timezone,
       theme,
       language
-    } = req.body
+    } = req.body;
 
     // Validate profile data
-    const validation = validateProfileData(req.body)
+    const validation = validateProfileData(req.body);
     if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: "Validation failed",
+        message: 'Validation failed',
         errors: validation.errors
-      })
+      });
     }
 
     // Build update object with only provided fields
-    const updateData = {}
-    
-    if (name !== undefined) updateData.name = name.trim()
-    if (bio !== undefined) updateData.bio = bio.trim()
-    if (avatar !== undefined) updateData.avatar = avatar || null
-    if (phone !== undefined) updateData.phone = phone.trim()
-    if (location !== undefined) updateData.location = location.trim()
-    if (website !== undefined) updateData.website = website.trim()
-    if (company !== undefined) updateData.company = company.trim()
-    if (jobTitle !== undefined) updateData.jobTitle = jobTitle.trim()
-    if (skills !== undefined) updateData.skills = Array.isArray(skills) ? skills.filter(s => s.trim()) : []
-    if (timezone !== undefined) updateData.timezone = timezone
-    if (theme !== undefined && ['light', 'dark', 'auto'].includes(theme)) updateData.theme = theme
-    if (language !== undefined) updateData.language = language
+    const updateData = {};
+
+    if (name !== undefined) {
+      updateData.name = name.trim();
+    }
+    if (bio !== undefined) {
+      updateData.bio = bio.trim();
+    }
+    if (avatar !== undefined) {
+      updateData.avatar = avatar || null;
+    }
+    if (phone !== undefined) {
+      updateData.phone = phone.trim();
+    }
+    if (location !== undefined) {
+      updateData.location = location.trim();
+    }
+    if (website !== undefined) {
+      updateData.website = website.trim();
+    }
+    if (company !== undefined) {
+      updateData.company = company.trim();
+    }
+    if (jobTitle !== undefined) {
+      updateData.jobTitle = jobTitle.trim();
+    }
+    if (skills !== undefined) {
+      updateData.skills = Array.isArray(skills) ? skills.filter(s => s.trim()) : [];
+    }
+    if (timezone !== undefined) {
+      updateData.timezone = timezone;
+    }
+    if (theme !== undefined && ['light', 'dark', 'auto'].includes(theme)) {
+      updateData.theme = theme;
+    }
+    if (language !== undefined) {
+      updateData.language = language;
+    }
 
     const user = await User.findByIdAndUpdate(
       userId,
       updateData,
       { new: true, runValidators: true }
-    ).select('-password')
+    ).select('-password');
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
-      })
+        message: 'User not found'
+      });
     }
 
-    logger.info(`Profile updated for user: ${userId}`)
+    logger.info(`Profile updated for user: ${userId}`);
     res.status(200).json({
       success: true,
-      message: "Profile updated successfully",
+      message: 'Profile updated successfully',
       profile: sanitizeUserResponse(user)
-    })
+    });
   } catch (err) {
-    logger.error('Update profile error:', err.message)
-    
+    logger.error('Update profile error:', err.message);
+
     if (err.name === 'ValidationError') {
-      const errors = Object.values(err.errors).map(e => e.message)
+      const errors = Object.values(err.errors).map(e => e.message);
       return res.status(400).json({
         success: false,
-        message: "Validation failed",
+        message: 'Validation failed',
         errors
-      })
+      });
     }
 
     res.status(500).json({
       success: false,
-      message: "Failed to update profile",
+      message: 'Failed to update profile',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    })
+    });
   }
-}
+};
 
 // Update user avatar
 exports.updateAvatar = async (req, res) => {
   try {
-    const userId = req.user?.id || req.userId
-    const { avatar } = req.body
+    const userId = req.user?.id || req.userId;
+    const { avatar } = req.body;
 
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized"
-      })
+        message: 'Unauthorized'
+      });
     }
 
     if (avatar && !/^https?:\/\/.+/.test(avatar)) {
       return res.status(400).json({
         success: false,
-        message: "Avatar must be a valid URL starting with http:// or https://"
-      })
+        message: 'Avatar must be a valid URL starting with http:// or https://'
+      });
     }
 
     const user = await User.findByIdAndUpdate(
       userId,
       { avatar: avatar || null },
       { new: true, runValidators: true }
-    ).select('-password')
+    ).select('-password');
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
-      })
+        message: 'User not found'
+      });
     }
 
-    logger.info(`Avatar updated for user: ${userId}`)
+    logger.info(`Avatar updated for user: ${userId}`);
     res.status(200).json({
       success: true,
-      message: "Avatar updated successfully",
+      message: 'Avatar updated successfully',
       profile: sanitizeUserResponse(user)
-    })
+    });
   } catch (err) {
-    logger.error('Update avatar error:', err.message)
+    logger.error('Update avatar error:', err.message);
     res.status(500).json({
       success: false,
-      message: "Failed to update avatar",
+      message: 'Failed to update avatar',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    })
+    });
   }
-}
+};
 
 // Delete profile (returns info about deletion process)
 exports.deleteProfile = async (req, res) => {
   try {
-    const userId = req.user?.id || req.userId
+    const userId = req.user?.id || req.userId;
 
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized"
-      })
+        message: 'Unauthorized'
+      });
     }
 
-    logger.warn(`Profile deletion requested for user: ${userId}`)
+    logger.warn(`Profile deletion requested for user: ${userId}`);
     res.status(200).json({
       success: true,
       message: "Profile deletion has been scheduled. We'll process your request within 30 days."
-    })
+    });
   } catch (err) {
-    logger.error('Delete profile error:', err.message)
+    logger.error('Delete profile error:', err.message);
     res.status(500).json({
       success: false,
-      message: "Failed to process deletion request",
+      message: 'Failed to process deletion request',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    })
+    });
   }
-}
+};
+
+// Change current user's password
+exports.changePassword = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    // Retrieve user including the password field
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid current password'
+      });
+    }
+
+    // Hash the new password and save
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    logger.info(`Password changed successfully for user: ${userId}`);
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (err) {
+    logger.error('Change password error:', err.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to change password',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+};

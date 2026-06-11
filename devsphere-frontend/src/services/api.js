@@ -1,16 +1,74 @@
 import { API_ENDPOINTS, API_BASE_URL } from '../constants/apiEndpoints';
 
-// Debug logging helper
-const API_DEBUG = process.env.DEBUG === 'true' || localStorage.getItem('API_DEBUG');
-
-const logApiCall = (method, endpoint, status = null, duration = null) => {
-  if (!API_DEBUG) return;
-  const timestamp = new Date().toISOString();
-  if (status) {
-    console.debug(`[${timestamp}] ${method} ${endpoint} → ${status} (${duration}ms)`);
-  } else {
-    console.debug(`[${timestamp}] ${method} ${endpoint}`);
+// Helper function to check if token is expired
+export const isTokenExpired = (token) => {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (!payload.exp) return false;
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp < now;
+  } catch {
+    return true;
   }
+};
+
+// Helper function to get token and clear if expired
+export const getToken = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  if (isTokenExpired(token)) {
+    localStorage.removeItem("token");
+    return null;
+  }
+  return token;
+};
+
+// Centralized Fetch Wrapper with Auth, Expiry Check, and Error Handling
+const authenticatedFetch = async (url, options = {}) => {
+  const token = getToken();
+
+  // If there was a token but it just expired, we throw session expired
+  if (localStorage.getItem("token") && !token) {
+    window.location.href = '/auth';
+    throw new Error("Your session has expired. Please log in again.");
+  }
+
+  const headers = {
+    ...options.headers,
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  if (options.body && !(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  // Handle 401 Unauthorized globally
+  if (response.status === 401) {
+    localStorage.removeItem("token");
+    // Redirect if it's not a pre-login / auth route
+    if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+      window.location.href = '/auth';
+    }
+  }
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return data;
 };
 
 // ============================================
@@ -19,8 +77,6 @@ const logApiCall = (method, endpoint, status = null, duration = null) => {
 
 // Register User
 export const register = async (email, password, name) => {
-  const startTime = performance.now();
-  logApiCall("POST", API_ENDPOINTS.AUTH.REGISTER);
   try {
     const res = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
       method: "POST",
@@ -28,25 +84,21 @@ export const register = async (email, password, name) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ email, password, name })
-    })
-    
+    });
+
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      throw new Error(data.message || `HTTP ${res.status}: ${res.statusText}`);
     }
-    
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("POST", API_ENDPOINTS.AUTH.REGISTER, res.status, duration);
-    return await res.json()
+    return data;
   } catch (err) {
-    console.error("Register Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Register Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // Login User
 export const login = async (email, password) => {
-  const startTime = performance.now();
-  logApiCall("POST", API_ENDPOINTS.AUTH.LOGIN);
   try {
     const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
       method: "POST",
@@ -54,163 +106,90 @@ export const login = async (email, password) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ email, password })
-    })
-    
+    });
+
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      throw new Error(data.message || `HTTP ${res.status}: ${res.statusText}`);
     }
-    
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("POST", API_ENDPOINTS.AUTH.LOGIN, res.status, duration);
-    const data = await res.json();
     return data;
   } catch (err) {
-    console.error("Login Fetch Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Login Fetch Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // ============================================
 // 💬 AGENT & CHAT
 // ============================================
 
-// Send Message to AI
-export const sendMessage = async ({ agentType, message, sessionId }) => {
-  const startTime = performance.now();
-  logApiCall("POST", API_ENDPOINTS.AGENT.CHAT);
+// Send Message to AI (includes optional model selector)
+export const sendMessage = async ({ agentType, message, sessionId, model }) => {
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(API_ENDPOINTS.AGENT.CHAT, {
+    const data = await authenticatedFetch(API_ENDPOINTS.AGENT.CHAT, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
       body: JSON.stringify({
         agentType,
         message,
-        sessionId
+        sessionId,
+        model
       })
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("POST", API_ENDPOINTS.AGENT.CHAT, res.status, duration);
-    return await res.json()
-
+    });
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Send Message Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Send Message Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // Get All Sessions
 export const getSessions = async () => {
-  const startTime = performance.now();
-  logApiCall("GET", API_ENDPOINTS.AGENT.SESSIONS);
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(API_ENDPOINTS.AGENT.SESSIONS, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("GET", API_ENDPOINTS.AGENT.SESSIONS, res.status, duration);
-    return await res.json()
-
+    const data = await authenticatedFetch(API_ENDPOINTS.AGENT.SESSIONS);
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Get Sessions Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Get Sessions Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // Get Messages of One Session
 export const getMessages = async (sessionId) => {
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(`${API_BASE_URL}/agent/messages/${sessionId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    return await res.json()
-
+    const data = await authenticatedFetch(`${API_BASE_URL}/agent/messages/${sessionId}`);
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Get Messages Error:", err)
-    return { success: false }
+    console.error("Get Messages Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // Rename Session
 export const renameSession = async (sessionId, title) => {
-  const startTime = performance.now();
-  logApiCall("PUT", `${API_BASE_URL}/agent/sessions/${sessionId}`);
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(`${API_BASE_URL}/agent/sessions/${sessionId}`, {
+    const data = await authenticatedFetch(`${API_BASE_URL}/agent/sessions/${sessionId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
       body: JSON.stringify({ title })
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("PUT", `${API_BASE_URL}/agent/sessions/${sessionId}`, res.status, duration);
-    return await res.json()
-
+    });
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Rename Session Error:", err)
-    return { success: false, error: err.message }
+    console.error("Rename Session Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // Delete Session
 export const deleteSession = async (sessionId) => {
-  const startTime = performance.now();
-  logApiCall("DELETE", `${API_BASE_URL}/agent/sessions/${sessionId}`);
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(`${API_BASE_URL}/agent/sessions/${sessionId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("DELETE", `${API_BASE_URL}/agent/sessions/${sessionId}`, res.status, duration);
-    return await res.json()
-
+    const data = await authenticatedFetch(`${API_BASE_URL}/agent/sessions/${sessionId}`, {
+      method: "DELETE"
+    });
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Delete Session Error:", err)
-    return { success: false, error: err.message }
+    console.error("Delete Session Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // ============================================
 // 👤 PROFILE
@@ -218,136 +197,126 @@ export const deleteSession = async (sessionId) => {
 
 // Get Current User Profile
 export const getCurrentProfile = async () => {
-  const startTime = performance.now();
-  logApiCall("GET", API_ENDPOINTS.PROFILE.GET_CURRENT);
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(API_ENDPOINTS.PROFILE.GET_CURRENT, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("GET", API_ENDPOINTS.PROFILE.GET_CURRENT, res.status, duration);
-    return await res.json()
-
+    const data = await authenticatedFetch(API_ENDPOINTS.PROFILE.GET_CURRENT);
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Get Profile Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Get Profile Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
-// Get User Profile by ID
+// Get User Profile by ID (does not enforce auth, but attaches token if present)
 export const getUserProfile = async (userId) => {
-  const startTime = performance.now();
-  const endpoint = API_ENDPOINTS.PROFILE.GET_USER(userId);
-  logApiCall("GET", endpoint);
   try {
-    const res = await fetch(endpoint)
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("GET", endpoint, res.status, duration);
-    return await res.json()
-
+    const data = await authenticatedFetch(API_ENDPOINTS.PROFILE.GET_USER(userId));
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Get User Profile Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Get User Profile Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // Update User Profile
 export const updateProfile = async (profileData) => {
-  const startTime = performance.now();
-  logApiCall("PUT", API_ENDPOINTS.PROFILE.UPDATE);
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(API_ENDPOINTS.PROFILE.UPDATE, {
+    const data = await authenticatedFetch(API_ENDPOINTS.PROFILE.UPDATE, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
       body: JSON.stringify(profileData)
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("PUT", API_ENDPOINTS.PROFILE.UPDATE, res.status, duration);
-    return await res.json()
-
+    });
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Update Profile Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Update Profile Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
 
 // Update User Avatar
 export const updateAvatar = async (avatarUrl) => {
-  const startTime = performance.now();
-  logApiCall("PUT", API_ENDPOINTS.PROFILE.UPDATE_AVATAR);
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(API_ENDPOINTS.PROFILE.UPDATE_AVATAR, {
+    const data = await authenticatedFetch(API_ENDPOINTS.PROFILE.UPDATE_AVATAR, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
       body: JSON.stringify({ avatar: avatarUrl })
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("PUT", API_ENDPOINTS.PROFILE.UPDATE_AVATAR, res.status, duration);
-    return await res.json()
-
+    });
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Update Avatar Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Update Avatar Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
+
+// Change User Password
+export const changePassword = async ({ currentPassword, newPassword }) => {
+  try {
+    const data = await authenticatedFetch(`${API_BASE_URL}/profile/me/password`, {
+      method: "PUT",
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    return { success: true, ...data };
+  } catch (err) {
+    console.error("Change Password Error:", err.message);
+    return { success: false, error: err.message };
+  }
+};
 
 // Get Profile Stats
 export const getProfileStats = async () => {
-  const startTime = performance.now();
-  logApiCall("GET", API_ENDPOINTS.PROFILE.GET_STATS);
   try {
-    const token = localStorage.getItem("token")
-
-    const res = await fetch(API_ENDPOINTS.PROFILE.GET_STATS, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-
-    const duration = Math.round(performance.now() - startTime);
-    logApiCall("GET", API_ENDPOINTS.PROFILE.GET_STATS, res.status, duration);
-    return await res.json()
-
+    const data = await authenticatedFetch(API_ENDPOINTS.PROFILE.GET_STATS);
+    return { success: true, ...data };
   } catch (err) {
-    console.error("Get Profile Stats Error:", err.message)
-    return { success: false, error: err.message }
+    console.error("Get Profile Stats Error:", err.message);
+    return { success: false, error: err.message };
   }
-}
+};
+
+// Delete profile (schedule deletion)
+export const deleteProfile = async () => {
+  try {
+    const data = await authenticatedFetch(API_ENDPOINTS.PROFILE.DELETE, {
+      method: "DELETE"
+    });
+    return { success: true, ...data };
+  } catch (err) {
+    console.error("Delete Profile Error:", err.message);
+    return { success: false, error: err.message };
+  }
+};
+
+// Get Chat Analytics & Stats
+export const getChatStats = async () => {
+  try {
+    const data = await authenticatedFetch(`${API_BASE_URL}/agent/stats`);
+    return { success: true, ...data };
+  } catch (err) {
+    console.error("Get Chat Stats Error:", err.message);
+    return { success: false, error: err.message };
+  }
+};
+
+// Review PDF Resume (Mulitpart upload)
+export const reviewResume = async (pdfFile, model = 'gemma:2b') => {
+  try {
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("resume", pdfFile);
+    formData.append("model", model);
+
+    const response = await fetch(`${API_BASE_URL}/agent/resume/review`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to review resume");
+    }
+    return { success: true, ...data };
+  } catch (err) {
+    console.error("Review Resume Error:", err.message);
+    return { success: false, error: err.message };
+  }
+};

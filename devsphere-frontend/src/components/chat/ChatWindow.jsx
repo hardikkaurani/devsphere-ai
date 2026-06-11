@@ -15,7 +15,9 @@ const ChatWindow = ({
   input,
   setInput,
   onSend,
-  isLoading = false
+  isLoading = false,
+  agentType = 'general',
+  onFileSelect = null
 }) => {
   const scrollRef = useRef(null);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -101,7 +103,9 @@ const ChatWindow = ({
           onChange={(e) => setInput(e.target.value)}
           onSend={onSend}
           disabled={isLoading}
-          placeholder="Ask me anything..."
+          placeholder={agentType === 'resume' ? 'Ask for advice or attach a PDF resume...' : 'Ask me anything...'}
+          agentType={agentType}
+          onFileSelect={onFileSelect}
         />
         <p className="text-xs text-slate-500 mt-2 text-center">
           Press Enter to send, Shift + Enter for new line

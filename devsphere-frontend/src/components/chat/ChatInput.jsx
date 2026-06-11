@@ -1,20 +1,22 @@
 import React, { useRef, useEffect } from 'react';
 import clsx from 'clsx';
-import { Send } from 'lucide-react';
+import { Send, Paperclip } from 'lucide-react';
 
 /**
  * Chat Input Component
- * Auto-expanding textarea with send button
+ * Auto-expanding textarea with send and resume attachment options
  */
-
 const ChatInput = ({
   value,
   onChange,
   onSend,
   disabled = false,
-  placeholder = 'Type your message...'
+  placeholder = 'Type your message...',
+  agentType = 'general',
+  onFileSelect = null
 }) => {
   const textareaRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -30,8 +32,42 @@ const ChatInput = ({
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && onFileSelect) {
+      onFileSelect(file);
+    }
+    // Clear value to allow selecting same file again
+    e.target.value = '';
+  };
+
   return (
     <div className="flex gap-3 items-end">
+      {/* PDF upload option contextually shown for Resume review agent */}
+      {agentType === 'resume' && onFileSelect && (
+        <>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".pdf"
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={disabled}
+            className={clsx(
+              'p-3 rounded-xl border border-slate-700/60 bg-slate-800/40 text-slate-400 hover:bg-slate-800 hover:text-white transition-all',
+              'disabled:opacity-50 disabled:cursor-not-allowed h-[46px] flex items-center justify-center'
+            )}
+            title="Upload PDF resume for automated review"
+          >
+            <Paperclip className="w-5 h-5" />
+          </button>
+        </>
+      )}
+
       <textarea
         ref={textareaRef}
         value={value}
@@ -52,6 +88,7 @@ const ChatInput = ({
         )}
         rows={1}
       />
+
       <button
         onClick={onSend}
         disabled={disabled || !value.trim()}
@@ -62,7 +99,7 @@ const ChatInput = ({
           'hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/30',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:scale-95',
           'flex items-center justify-center gap-2',
-          'font-medium text-sm'
+          'font-medium text-sm h-[46px]'
         )}
         aria-label={disabled ? "Sending message" : "Send message"}
       >

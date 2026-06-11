@@ -9,7 +9,9 @@ const logger = require('../utils/logger');
  * Sanitize string input - escape dangerous characters
  */
 const sanitizeString = (str) => {
-  if (typeof str !== 'string') return '';
+  if (typeof str !== 'string') {
+    return '';
+  }
   return str.trim();
 };
 
@@ -22,7 +24,7 @@ const validateMessageInput = (message) => {
   }
 
   const trimmed = message.trim();
-  
+
   if (trimmed.length === 0) {
     return { valid: false, error: 'Message cannot be empty' };
   }
@@ -48,7 +50,7 @@ const validateEmailInput = (email) => {
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
+
   if (!emailRegex.test(email.trim())) {
     return { valid: false, error: 'Invalid email format' };
   }
@@ -84,7 +86,7 @@ const validateChatInput = (req, res, next) => {
       });
     }
 
-    next();
+    return next();
   } catch (error) {
     logger.error('Chat input validation error:', error);
     res.status(400).json({
@@ -137,7 +139,7 @@ const validateAuthInput = (req, res, next) => {
       req.body.name = name.trim();
     }
 
-    next();
+    return next();
   } catch (error) {
     logger.error('Auth input validation error:', error);
     res.status(400).json({

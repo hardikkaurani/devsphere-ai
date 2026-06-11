@@ -6,7 +6,7 @@ import { Zap, Calendar, Target } from 'lucide-react';
  * Displays profile completion stats and account info
  * Production-grade analytics display
  */
-function ProfileStats({ stats, profile }) {
+function ProfileStats({ stats }) {
   if (!stats) return null
 
   const completionColor = stats.completionPercentage >= 75 ? 'from-green-500 to-emerald-600'

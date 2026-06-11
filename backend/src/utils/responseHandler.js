@@ -6,6 +6,26 @@
 const logger = require('./logger');
 
 /**
+ * Map HTTP status code to error code
+ * @param {number} statusCode - HTTP status code
+ * @returns {string} - Error code
+ */
+const getErrorCode = (statusCode) => {
+  const codes = {
+    400: 'BAD_REQUEST',
+    401: 'UNAUTHORIZED',
+    403: 'FORBIDDEN',
+    404: 'NOT_FOUND',
+    409: 'CONFLICT',
+    429: 'RATE_LIMITED',
+    500: 'INTERNAL_ERROR',
+    503: 'SERVICE_UNAVAILABLE'
+  };
+
+  return codes[statusCode] || 'ERROR';
+};
+
+/**
  * Standard success response format
  * @param {object} res - Express response object
  * @param {*} data - Response data
@@ -59,7 +79,7 @@ const sendError = (res, message, statusCode = 500, details = null) => {
  */
 const sendPaginated = (res, data, total, page = 1, limit = 10) => {
   const pages = Math.ceil(total / limit);
-  
+
   return res.status(200).json({
     success: true,
     message: 'Data retrieved successfully',
@@ -94,25 +114,6 @@ const sendValidationError = (res, errors) => {
   });
 };
 
-/**
- * Map HTTP status code to error code
- * @param {number} statusCode - HTTP status code
- * @returns {string} - Error code
- */
-const getErrorCode = (statusCode) => {
-  const codes = {
-    400: 'BAD_REQUEST',
-    401: 'UNAUTHORIZED',
-    403: 'FORBIDDEN',
-    404: 'NOT_FOUND',
-    409: 'CONFLICT',
-    429: 'RATE_LIMITED',
-    500: 'INTERNAL_ERROR',
-    503: 'SERVICE_UNAVAILABLE'
-  };
-
-  return codes[statusCode] || 'ERROR';
-};
 
 module.exports = {
   sendSuccess,

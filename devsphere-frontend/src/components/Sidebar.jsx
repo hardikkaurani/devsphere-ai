@@ -19,8 +19,8 @@ function Sidebar({
     <div
       className={`${
         sidebarOpen ? "w-72" : "w-20"
-      } transition-all duration-300 
-         bg-[#111827] border-r border-slate-800 
+      } transition-all duration-300
+         bg-[#111827] border-r border-slate-800
          text-slate-200 p-4 flex flex-col`}
     >
 
@@ -43,9 +43,9 @@ function Sidebar({
       {sidebarOpen && (
         <button
           onClick={() => onSelectSession(null)}
-          className="flex items-center gap-2 
+          className="flex items-center gap-2
                      bg-indigo-600 hover:bg-indigo-500
-                     text-white py-2 px-3 rounded-xl 
+                     text-white py-2 px-3 rounded-xl
                      transition duration-200 mb-5"
         >
           <Plus size={16} />
@@ -61,9 +61,9 @@ function Sidebar({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search sessions..."
-            className="w-full pl-9 pr-3 py-2 rounded-lg 
+            className="w-full pl-9 pr-3 py-2 rounded-lg
                        bg-slate-800 border border-slate-700
-                       text-white placeholder-slate-400 
+                       text-white placeholder-slate-400
                        outline-none focus:border-indigo-500"
           />
         </div>
@@ -82,7 +82,7 @@ function Sidebar({
           <div
             key={s._id}
             onClick={() => onSelectSession(s._id)}
-            className={`p-3 rounded-xl cursor-pointer 
+            className={`p-3 rounded-xl cursor-pointer
                         transition-all duration-200 truncate ${
               activeSession === s._id
                 ? "bg-indigo-600 text-white"

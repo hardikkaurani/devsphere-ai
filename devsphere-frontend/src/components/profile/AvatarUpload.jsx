@@ -48,9 +48,9 @@ function AvatarUpload({
       {/* Avatar Container */}
       <motion.div
         whileHover={isEditing ? { scale: 1.05 } : {}}
-        className={`${sizeClasses[size]} rounded-full border-2 border-indigo-500 
-                     flex items-center justify-center overflow-hidden 
-                     bg-gradient-to-br from-indigo-500 to-purple-600 
+        className={`${sizeClasses[size]} rounded-full border-2 border-indigo-500
+                     flex items-center justify-center overflow-hidden
+                     bg-gradient-to-br from-indigo-500 to-purple-600
                      relative group transition-all duration-300
                      ${isEditing ? 'cursor-pointer' : ''}`}
       >
@@ -83,8 +83,8 @@ function AvatarUpload({
       {/* Edit Button */}
       {isEditing && (
         <label
-          className={`absolute -bottom-1 -right-1 ${size === 'sm' ? 'w-5 h-5' : 'w-6 h-6'} 
-                       bg-indigo-600 hover:bg-indigo-700 text-white rounded-full 
+          className={`absolute -bottom-1 -right-1 ${size === 'sm' ? 'w-5 h-5' : 'w-6 h-6'}
+                       bg-indigo-600 hover:bg-indigo-700 text-white rounded-full
                        flex items-center justify-center cursor-pointer transition-colors duration-200
                        shadow-lg`}
         >

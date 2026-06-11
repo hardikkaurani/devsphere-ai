@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 const TypingIndicator = () => {
   const dotVariants = {
     initial: { y: 0 },
-    animate: { 
+    animate: {
       y: [-8, 0, -8],
       transition: {
         duration: 0.6,

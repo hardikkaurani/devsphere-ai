@@ -33,7 +33,9 @@ export default [
         setTimeout: 'readonly',
         clearImmediate: 'readonly',
         clearInterval: 'readonly',
-        clearTimeout: 'readonly'
+        clearTimeout: 'readonly',
+        fetch: 'readonly',
+        TextDecoder: 'readonly'
       }
     },
     rules: {

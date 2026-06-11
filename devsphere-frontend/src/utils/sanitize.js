@@ -9,7 +9,7 @@
  */
 export const sanitizeInput = (input) => {
   if (typeof input !== 'string') return '';
-  
+
   const htmlEscapeMap = {
     '&': '&amp;',
     '<': '&lt;',
@@ -18,8 +18,8 @@ export const sanitizeInput = (input) => {
     "'": '&#39;',
     '/': '&#x2F;'
   };
-  
-  return input.replace(/[&<>"'\/]/g, (char) => htmlEscapeMap[char]);
+
+  return input.replace(/[&<>"'/]/g, (char) => htmlEscapeMap[char]);
 };
 
 /**
@@ -30,11 +30,11 @@ export const validateMessageLength = (message, maxLength = 4000) => {
   if (!message || message.trim().length === 0) {
     return { valid: false, error: 'Message cannot be empty' };
   }
-  
+
   if (message.length > maxLength) {
     return { valid: false, error: `Message cannot exceed ${maxLength} characters` };
   }
-  
+
   return { valid: true };
 };
 
@@ -44,17 +44,17 @@ export const validateMessageLength = (message, maxLength = 4000) => {
  */
 export const sanitizeMessage = (message, maxLength = 4000) => {
   const lengthValidation = validateMessageLength(message, maxLength);
-  
+
   if (!lengthValidation.valid) {
     throw new Error(lengthValidation.error);
   }
-  
+
   // Trim whitespace
   const trimmedMessage = message.trim();
-  
+
   // Sanitize HTML
   const sanitized = sanitizeInput(trimmedMessage);
-  
+
   return sanitized;
 };
 
@@ -75,7 +75,7 @@ export const validatePasswordStrength = (password) => {
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
-  
+
   return {
     valid: minLength && hasUppercase && hasLowercase && hasNumber,
     requirements: {

@@ -107,3 +107,5 @@ dist
 local/
 private/
 secrets/
+
+.vercel

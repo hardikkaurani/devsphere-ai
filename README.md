@@ -1,6 +1,16 @@
 <h1 align="center">DevSphere AI</h1>
 
 <p align="center">
+  <a href="https://devsphere-ai-olive.vercel.app" target="_blank">
+    <img src="devsphere-frontend/public/devsphere%20gif.gif" alt="DevSphere AI Demo" width="800" />
+  </a>
+</p>
+
+<p align="center">
+  <sub>Click the demo to open the live app</sub>
+</p>
+
+<p align="center">
   <strong>A production-grade, multi-agent AI platform engineered for developers</strong><br/>
   Intelligent coding assistance, resume analysis, and general-purpose conversational AI — powered by a self-hosted Ollama inference backend.
 </p>

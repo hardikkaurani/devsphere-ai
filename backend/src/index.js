@@ -56,14 +56,39 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// CORS configuration (supports single string or comma-separated origins)
+// CORS configuration (supports comma-separated origins plus Vercel preview URLs)
 const corsOrigin = config.corsOrigin;
 const allowedOrigins = typeof corsOrigin === 'string' && corsOrigin.includes(',')
   ? corsOrigin.split(',').map(origin => origin.trim())
   : corsOrigin;
+const allowedOriginList = Array.isArray(allowedOrigins) ? allowedOrigins : [allowedOrigins];
+const isAllowedOrigin = (origin) => {
+  if (!origin) {
+    return true;
+  }
+
+  if (allowedOriginList.includes(origin)) {
+    return true;
+  }
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost'
+      || hostname === '127.0.0.1'
+      || hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+};
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin(origin, callback) {
+    if (isAllowedOrigin(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true
 }));
 
@@ -96,7 +121,9 @@ app.get('/health', async (req, res) => {
   const ollamaHealthy = await aiService.isHealthy();
   const uptime = process.uptime();
 
-  const isHealthy = dbConnected && ollamaHealthy;
+  // Auth and profile routes only need the API process and database.
+  // Ollama can be unavailable on hosted environments without making login fail.
+  const isHealthy = dbConnected;
 
   res.status(isHealthy ? 200 : 503).json({
     success: isHealthy,
@@ -105,7 +132,8 @@ app.get('/health', async (req, res) => {
     uptime: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`,
     services: {
       database: dbConnected ? 'connected' : 'disconnected',
-      ollama: ollamaHealthy ? 'available' : 'unavailable'
+      ollama: ollamaHealthy ? 'available' : 'unavailable',
+      aiFeatures: ollamaHealthy ? 'available' : 'degraded'
     }
   });
 });

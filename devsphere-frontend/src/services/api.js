@@ -1,5 +1,26 @@
 import { API_ENDPOINTS, API_BASE_URL } from '../constants/apiEndpoints';
 
+const REQUEST_TIMEOUT_MS = 30000;
+
+const fetchWithTimeout = async (url, options = {}) => {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: options.signal || controller.signal
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('Backend is not responding. Please try again in a minute.');
+    }
+    throw err;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+};
+
 // Helper function to check if token is expired
 export const isTokenExpired = (token) => {
   if (!token) return true;
@@ -21,6 +42,7 @@ export const getToken = () => {
   if (!token) return null;
   if (isTokenExpired(token)) {
     localStorage.removeItem("token");
+    window.dispatchEvent(new Event('auth-change'));
     return null;
   }
   return token;
@@ -48,7 +70,7 @@ const authenticatedFetch = async (url, options = {}) => {
     headers["Content-Type"] = "application/json";
   }
 
-  const response = await fetch(url, {
+  const response = await fetchWithTimeout(url, {
     ...options,
     headers,
   });
@@ -56,6 +78,7 @@ const authenticatedFetch = async (url, options = {}) => {
   // Handle 401 Unauthorized globally
   if (response.status === 401) {
     localStorage.removeItem("token");
+    window.dispatchEvent(new Event('auth-change'));
     // Redirect if it's not a pre-login / auth route
     if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
       window.location.href = '/auth';
@@ -78,7 +101,7 @@ const authenticatedFetch = async (url, options = {}) => {
 // Register User
 export const register = async (email, password, name) => {
   try {
-    const res = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
+    const res = await fetchWithTimeout(API_ENDPOINTS.AUTH.REGISTER, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -100,7 +123,7 @@ export const register = async (email, password, name) => {
 // Login User
 export const login = async (email, password) => {
   try {
-    const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+    const res = await fetchWithTimeout(API_ENDPOINTS.AUTH.LOGIN, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -302,7 +325,7 @@ export const reviewResume = async (pdfFile, model = 'gemma:2b') => {
     formData.append("resume", pdfFile);
     formData.append("model", model);
 
-    const response = await fetch(`${API_BASE_URL}/agent/resume/review`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/agent/resume/review`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`

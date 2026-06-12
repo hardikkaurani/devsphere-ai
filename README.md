@@ -733,3 +733,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ---
 
 *Built for developers who take their tooling seriously !*
+
+Made with ❤️ by Hardik Kaurani | [Visit Website](https://devsphere-ai-olive.vercel.app) | [View Demo](https://devsphere-ai-olive.vercel.app)

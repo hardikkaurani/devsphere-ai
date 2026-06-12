@@ -4,8 +4,23 @@
  * Uses environment variables for security and flexibility
  */
 
-// Get API base URL from environment variable with fallback for development
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
+const trimTrailingSlash = (value) => value.replace(/\/+$/, '');
+
+// Get API base URL from environment variable with safe deploy/local fallbacks.
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl) {
+    return trimTrailingSlash(envUrl);
+  }
+
+  if (import.meta.env.PROD) {
+    return 'https://devsphere-api.onrender.com/api/v1';
+  }
+
+  return 'http://localhost:5000/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export { API_BASE_URL };
 

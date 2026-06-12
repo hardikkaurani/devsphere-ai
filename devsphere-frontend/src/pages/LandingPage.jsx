@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
@@ -13,7 +13,8 @@ import {
   ArrowRight,
   CheckCircle,
   Github,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 
 /**
@@ -22,6 +23,8 @@ import {
  */
 
 function LandingPage() {
+  const [modalType, setModalType] = useState(null); // 'privacy' | 'terms' | null
+
   const features = [
     {
       icon: Brain,
@@ -94,11 +97,11 @@ function LandingPage() {
               className="mb-8 flex justify-center"
             >
               <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-cyan-400/25 blur-3xl" />
+                <div className="absolute inset-0 rounded-2xl bg-cyan-400/25 blur-3xl" />
                 <img
                   src="/devsphere-logo.jpg"
                   alt="DevSphere AI"
-                  className="relative h-28 w-28 rounded-full object-cover shadow-2xl shadow-blue-500/30 md:h-36 md:w-36"
+                  className="relative h-20 w-20 rounded-2xl object-cover shadow-2xl shadow-blue-500/30 md:h-24 md:w-24"
                 />
               </div>
             </motion.div>
@@ -312,8 +315,8 @@ function LandingPage() {
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-sm">
             <p>&copy; 2024 DevSphere AI. All rights reserved.</p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-white transition">Privacy</a>
-              <a href="#" className="hover:text-white transition">Terms</a>
+              <button onClick={() => setModalType('privacy')} className="hover:text-white transition bg-transparent border-none cursor-pointer">Privacy</button>
+              <button onClick={() => setModalType('terms')} className="hover:text-white transition bg-transparent border-none cursor-pointer">Terms</button>
               <a href="https://github.com/hardikkaurani/devsphere-ai" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
                 GitHub
               </a>
@@ -321,6 +324,147 @@ function LandingPage() {
           </div>
         </footer>
       </div>
+
+      {/* Terms & Privacy Modal */}
+      <AnimatePresence>
+        {modalType && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setModalType(null)}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+            />
+            
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-700/50 bg-slate-900/90 p-6 md:p-8 shadow-2xl backdrop-blur-xl text-left z-10"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setModalType(null)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white transition p-1.5 rounded-lg hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {modalType === 'privacy' ? (
+                <>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden">
+                      <img src="/devsphere-logo.jpg" alt="" className="h-full w-full object-cover" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Privacy Policy</h2>
+                      <p className="text-xs text-slate-500">Last updated: June 12, 2026</p>
+                    </div>
+                  </div>
+                  <div className="space-y-6 text-slate-300">
+                    <section>
+                      <h3 className="mb-2 text-lg font-semibold text-white">Information We Store</h3>
+                      <p className="text-slate-300 leading-relaxed text-sm">
+                        DevSphere AI stores account details such as your name, email, profile information,
+                        and chat sessions needed to provide the app experience.
+                      </p>
+                    </section>
+
+                    <section>
+                      <h3 className="mb-2 text-lg font-semibold text-white">How We Use Data</h3>
+                      <p className="text-slate-300 leading-relaxed text-sm">
+                        Your data is used for authentication, profile management, chat history, and improving
+                        the reliability of the application. We do not sell your personal data.
+                      </p>
+                    </section>
+
+                    <section>
+                      <h3 className="mb-2 text-lg font-semibold text-white">Security</h3>
+                      <p className="text-slate-300 leading-relaxed text-sm">
+                        Passwords are hashed before storage, and protected API routes require authentication.
+                        You should still avoid sharing sensitive personal, financial, or confidential data in chats.
+                      </p>
+                    </section>
+
+                    <section>
+                      <h3 className="mb-2 text-lg font-semibold text-white">Contact</h3>
+                      <p className="text-slate-300 leading-relaxed text-sm">
+                        For privacy questions, use the project repository at{' '}
+                        <a
+                          href="https://github.com/hardikkaurani/devsphere-ai"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-300 hover:text-blue-200 underline"
+                        >
+                          GitHub
+                        </a>
+                        .
+                      </p>
+                    </section>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden">
+                      <img src="/devsphere-logo.jpg" alt="" className="h-full w-full object-cover" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Terms of Use</h2>
+                      <p className="text-xs text-slate-500">Last updated: June 12, 2026</p>
+                    </div>
+                  </div>
+                  <div className="space-y-6 text-slate-300">
+                    <section>
+                      <h3 className="mb-2 text-lg font-semibold text-white">Use of DevSphere AI</h3>
+                      <p className="text-slate-300 leading-relaxed text-sm">
+                        DevSphere AI is provided as an AI productivity tool for coding help, resume review,
+                        and general assistance. Use the application responsibly and lawfully.
+                      </p>
+                    </section>
+
+                    <section>
+                      <h3 className="mb-2 text-lg font-semibold text-white">AI Output</h3>
+                      <p className="text-slate-300 leading-relaxed text-sm">
+                        AI responses may be incomplete or incorrect. Review outputs before relying on them,
+                        especially for code, career, legal, financial, or safety-sensitive decisions.
+                      </p>
+                    </section>
+
+                    <section>
+                      <h3 className="mb-2 text-lg font-semibold text-white">Accounts</h3>
+                      <p className="text-slate-300 leading-relaxed text-sm">
+                        You are responsible for keeping your login credentials secure and for activity that
+                        happens through your account.
+                      </p>
+                    </section>
+
+                    <section>
+                      <h3 className="mb-2 text-lg font-semibold text-white">Project Repository</h3>
+                      <p className="text-slate-300 leading-relaxed text-sm">
+                        Source and project updates are available on{' '}
+                        <a
+                          href="https://github.com/hardikkaurani/devsphere-ai"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-300 hover:text-blue-200 underline"
+                        >
+                          GitHub
+                        </a>
+                        .
+                      </p>
+                    </section>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </MainLayout>
   );
 }

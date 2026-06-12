@@ -13,12 +13,12 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: MONGODB_URI
+      - key: MONGO_URI
         sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://devsphere-ai.vercel.app
+        value: https://devsphere-ai-olive.vercel.app
       - key: OLLAMA_BASE_URL
         value: http://localhost:11434
       - key: OLLAMA_MODEL

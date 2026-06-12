@@ -44,7 +44,7 @@ In Render dashboard, add these variables:
 ```
 NODE_ENV = production
 PORT = 10000
-MONGODB_URI = mongodb+srv://CodingMaster:Hardik01@programming.eguuykj.mongodb.net/?appName=Programming
+MONGODB_URI = mongodb+srv://<username>:<password>@<cluster-host>/<database>?retryWrites=true&w=majority
 JWT_SECRET = (generate: `openssl rand -base64 32`)
 CORS_ORIGIN = https://devsphere-ai.vercel.app
 OLLAMA_BASE_URL = http://localhost:11434

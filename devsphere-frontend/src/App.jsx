@@ -5,6 +5,8 @@ import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 
 // Helper function to check if user is authenticated and token is not expired
 const isUserAuthenticated = () => {
@@ -31,13 +33,18 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(isUserAuthenticated());
 
   useEffect(() => {
-    // Listen for storage changes (token added/removed in other tabs)
-    const handleStorageChange = () => {
+    // Listen for auth changes in this tab and storage changes from other tabs.
+    const handleAuthChange = () => {
       setIsAuthenticated(isUserAuthenticated());
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('auth-change', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
+
+    return () => {
+      window.removeEventListener('auth-change', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
+    };
   }, []);
 
   return (
@@ -56,6 +63,8 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route
           path="/auth"
           element={isAuthenticated ? <Navigate to="/dashboard" /> : <AuthPage />}

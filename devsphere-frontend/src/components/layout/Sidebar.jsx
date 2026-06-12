@@ -150,7 +150,7 @@ const Sidebar = ({
           whileHover={{ scale: 1.02 }}
           className="flex items-center gap-2 mb-2"
         >
-          <div className="w-10 h-10 rounded-full bg-slate-950 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden">
             <img src="/devsphere-logo.jpg" alt="" className="h-full w-full object-cover" />
           </div>
           <div>

@@ -61,9 +61,12 @@ function AuthPage() {
 
       if (response.token) {
         localStorage.setItem('token', response.token);
-        navigate('/dashboard');
+        window.dispatchEvent(new Event('auth-change'));
+        navigate('/dashboard', { replace: true });
       } else if (response.message) {
         setError(response.message);
+      } else if (response.error) {
+        setError(response.error);
       } else {
         setError('Authentication failed. Please try again.');
       }
@@ -90,7 +93,7 @@ function AuthPage() {
               <img
                 src="/devsphere-logo.jpg"
                 alt="DevSphere AI"
-                className="mx-auto mb-4 h-16 w-16 rounded-full object-cover shadow-lg shadow-blue-500/25"
+                className="mx-auto mb-4 h-14 w-14 rounded-2xl object-cover shadow-lg shadow-blue-500/25"
               />
               <h1 className="text-3xl font-bold text-white mb-2">
                 {isLogin ? 'Welcome Back' : 'Join DevSphere AI'}

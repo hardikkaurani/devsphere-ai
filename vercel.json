@@ -3,6 +3,9 @@
   "buildCommand": "npm run build --prefix devsphere-frontend",
   "outputDirectory": "devsphere-frontend/dist",
   "framework": "vite",
+  "env": {
+    "VITE_API_BASE_URL": "https://devsphere-api.onrender.com/api/v1"
+  },
   "rewrites": [
     {
       "source": "/(.*)",

@@ -1,0 +1,77 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="112" fill="#130C35"/>
+  <g filter="url(#outerGlow)">
+    <circle cx="256" cy="256" r="154" fill="url(#shell)"/>
+    <circle cx="256" cy="256" r="146" fill="url(#deepGlass)"/>
+    <circle cx="256" cy="256" r="145" stroke="url(#rim)" stroke-width="10"/>
+  </g>
+  <g opacity="0.96">
+    <path d="M199 133C274 98 363 133 392 208C338 174 284 184 247 231C225 260 214 295 217 335C148 294 120 174 199 133Z" fill="url(#violetFold)"/>
+    <path d="M306 135C378 164 416 246 389 319C365 256 315 227 252 239C217 246 188 264 165 293C164 214 222 117 306 135Z" fill="url(#mintFold)"/>
+    <path d="M125 266C128 184 195 118 277 118C236 161 228 215 257 269C274 301 301 324 337 338C259 379 134 353 125 266Z" fill="url(#blueFold)"/>
+    <path d="M367 333C305 388 209 389 147 334C213 341 259 316 285 260C299 229 299 194 287 159C361 186 429 271 367 333Z" fill="url(#cyanFold)"/>
+  </g>
+  <circle cx="256" cy="256" r="84" fill="url(#core)" opacity="0.95"/>
+  <path d="M146 186C173 143 224 117 278 121" stroke="url(#highlight)" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+  <path d="M372 313C347 363 294 392 237 387" stroke="#7FFFE8" stroke-width="8" stroke-linecap="round" opacity="0.55"/>
+  <circle cx="256" cy="256" r="154" stroke="url(#glassEdge)" stroke-width="5"/>
+  <defs>
+    <filter id="outerGlow" x="58" y="58" width="396" height="396" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="22" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.153 0 0 0 0 0.459 0 0 0 0 1 0 0 0 0.8 0"/>
+      <feBlend in2="BackgroundImageFix" mode="screen" result="glow"/>
+      <feBlend in="SourceGraphic" in2="glow" result="shape"/>
+    </filter>
+    <radialGradient id="shell" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(330 172) rotate(132) scale(280)">
+      <stop stop-color="#92FFF0"/>
+      <stop offset="0.42" stop-color="#238BFF"/>
+      <stop offset="0.72" stop-color="#6422FF"/>
+      <stop offset="1" stop-color="#160B45"/>
+    </radialGradient>
+    <radialGradient id="deepGlass" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(315 181) rotate(126) scale(230)">
+      <stop stop-color="#7AFFDC" stop-opacity="0.42"/>
+      <stop offset="0.45" stop-color="#173A85" stop-opacity="0.72"/>
+      <stop offset="1" stop-color="#180B3B"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="124" y1="353" x2="389" y2="158" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#34B8FF"/>
+      <stop offset="0.5" stop-color="#5B2DFF"/>
+      <stop offset="1" stop-color="#8DFFE8"/>
+    </linearGradient>
+    <linearGradient id="violetFold" x1="159" y1="159" x2="360" y2="323" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7D28FF"/>
+      <stop offset="0.6" stop-color="#214BDB" stop-opacity="0.82"/>
+      <stop offset="1" stop-color="#051C4C" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="mintFold" x1="335" y1="133" x2="207" y2="338" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#99FFE5"/>
+      <stop offset="0.48" stop-color="#2FCAF7" stop-opacity="0.82"/>
+      <stop offset="1" stop-color="#2536AD" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="blueFold" x1="132" y1="315" x2="291" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4DDCFF"/>
+      <stop offset="0.5" stop-color="#2C6CFF" stop-opacity="0.82"/>
+      <stop offset="1" stop-color="#7B26FF" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="cyanFold" x1="391" y1="350" x2="218" y2="158" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7CFFE5"/>
+      <stop offset="0.42" stop-color="#3EB6FF" stop-opacity="0.78"/>
+      <stop offset="1" stop-color="#241B7D" stop-opacity="0.16"/>
+    </linearGradient>
+    <radialGradient id="core" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(281 235) rotate(126) scale(128)">
+      <stop stop-color="#123D76"/>
+      <stop offset="0.64" stop-color="#0A2A59"/>
+      <stop offset="1" stop-color="#081A43" stop-opacity="0.25"/>
+    </radialGradient>
+    <linearGradient id="highlight" x1="139" y1="199" x2="274" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60D9FF" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#AAFFF1"/>
+    </linearGradient>
+    <linearGradient id="glassEdge" x1="129" y1="374" x2="382" y2="133" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#55D8FF"/>
+      <stop offset="0.55" stop-color="#7657FF"/>
+      <stop offset="1" stop-color="#B3FFF0"/>
+    </linearGradient>
+  </defs>
+</svg>

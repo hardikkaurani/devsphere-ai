@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
-import { Zap, Code, FileText, MessageSquare, Trash2, Edit2, Check, X, User, LogOut, BarChart2 } from 'lucide-react';
+import { Code, FileText, MessageSquare, Trash2, Edit2, Check, X, User, LogOut, BarChart2 } from 'lucide-react';
 import { getSessions, renameSession, deleteSession } from '../../services/api';
 
 // Helper: map session types to icon
@@ -150,8 +150,8 @@ const Sidebar = ({
           whileHover={{ scale: 1.02 }}
           className="flex items-center gap-2 mb-2"
         >
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <Zap className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-full bg-slate-950 flex items-center justify-center shadow-lg shadow-blue-500/20 overflow-hidden">
+            <img src="/devsphere-logo.jpg" alt="" className="h-full w-full object-cover" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-white tracking-wide">DevSphere AI</h1>

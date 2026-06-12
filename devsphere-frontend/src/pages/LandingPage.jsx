@@ -88,6 +88,22 @@ function LandingPage() {
         >
           <div className="max-w-4xl mx-auto text-center z-20">
             <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="mb-8 flex justify-center"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-cyan-400/25 blur-3xl" />
+                <img
+                  src="/devsphere-logo.jpg"
+                  alt="DevSphere AI"
+                  className="relative h-28 w-28 rounded-full object-cover shadow-2xl shadow-blue-500/30 md:h-36 md:w-36"
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
@@ -132,7 +148,7 @@ function LandingPage() {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <a href="https://github.com/devsphere-ai" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/hardikkaurani/devsphere-ai" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="lg">
                   <Github className="w-4 h-4" />
                   View on GitHub
@@ -298,7 +314,7 @@ function LandingPage() {
             <div className="flex gap-6">
               <a href="#" className="hover:text-white transition">Privacy</a>
               <a href="#" className="hover:text-white transition">Terms</a>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
+              <a href="https://github.com/hardikkaurani/devsphere-ai" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
                 GitHub
               </a>
             </div>

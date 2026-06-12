@@ -87,6 +87,11 @@ function AuthPage() {
           <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
             {/* Header */}
             <div className="text-center mb-8">
+              <img
+                src="/devsphere-logo.jpg"
+                alt="DevSphere AI"
+                className="mx-auto mb-4 h-16 w-16 rounded-full object-cover shadow-lg shadow-blue-500/25"
+              />
               <h1 className="text-3xl font-bold text-white mb-2">
                 {isLogin ? 'Welcome Back' : 'Join DevSphere AI'}
               </h1>

@@ -15,11 +15,6 @@
   Intelligent coding assistance, resume analysis, and general-purpose conversational AI — powered by a self-hosted Ollama inference backend.
 </p>
 
-<p align="center">
-  <a href="https://devsphere-ai-olive.vercel.app" target="_blank">
-    <img src="https://img.shields.io/badge/Live-devsphere--ai--olive.vercel.app-22c55e?style=for-the-badge&logo=vercel&logoColor=white" />
-  </a>
-</p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>

@@ -1,4 +1,4 @@
-<h1 align="center">DevSphere AI</h1>
+<h1 align="center">DevSphere AI.</h1>
 
 <p align="center">
   <a href="https://devsphere-ai-olive.vercel.app" target="_blank">
